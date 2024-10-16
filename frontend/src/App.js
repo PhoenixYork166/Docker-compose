@@ -315,7 +315,7 @@ class App extends Component {
     const devFetchRawHexUrl = 'http://localhost:3001/image';
     const prodFetchRawHexUrl = 'https://ai-recognition-backend.onrender.com/image';
     
-    const fetchUrl = process.env.NODE_ENV === 'product' ? prodFetchRawHexUrl : devFetchRawHexUrl;
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchRawHexUrl : devFetchRawHexUrl;
 
     /* Sending state user.id && state_raw_hex_array to local server-side */
     // Fetching live Web Server on Render
@@ -365,7 +365,7 @@ class App extends Component {
     const devFetchAgeUrl = 'http://localhost:3001/ageimage';
     const prodFetchAgeUrl = 'https://ai-recognition-backend.onrender.com/ageimage';
 
-    const fetchUrl = process.env.NODE_ENV === 'product' ? prodFetchAgeUrl : devFetchAgeUrl;
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchAgeUrl : devFetchAgeUrl;
 
     fetch(fetchUrl, {
         method: 'post', 
