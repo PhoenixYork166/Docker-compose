@@ -1,0 +1,40 @@
+.navContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.navSignedIn {
+    display: flex;
+    justify-content: flex-end;
+    width: 95%;
+    /* position: absolute; */
+}
+
+.navBoxSignedOut {
+    display: block;
+    max-width: 60rem;
+    min-width: 33rem;
+}
+
+.navSignedOut {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.navPara {
+    transition: all .1s ease-out;
+    opacity: 1;
+    font-size: 1.5rem;
+    padding: 1rem;
+    color: #fdc6fb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navPara:hover {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.navPara:active {
+    color: rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,44 @@
+.age-container {
+    margin-right: auto;
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.age-container .age-subcontainer {
+    position: absolute;
+    margin-top: 0.5rem;
+}
+
+#face-image {
+    position: relative;
+    width: 70vw;
+}
+
+@media (max-width: 37.5em) {
+    #face-image {
+        width: 50vw;
+    }
+}
+
+#age-number {
+    color: #c5e60c;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 37.5em) {
+    #age-number {
+        max-width: 38rem;
+    }
+}
+
+.age-image {
+    position: relative;
+    transition: all .2s ease-out;
+}
+.age-image:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
