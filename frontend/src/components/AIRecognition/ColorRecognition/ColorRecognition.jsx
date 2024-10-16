@@ -87,8 +87,9 @@ const ColorRecognition = ( {
         console.log(`\nColorDetails input: `, input, `\n`);
         console.log(`\nColorDetails saveColor imageRecord:\n`, imageRecord, `\n`);
         console.log(`\nColorDetails saveColor imageRecord.userId:\n`, imageRecord.userId, `\n`);
-        console.log(`\nColorDetails saveColor imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
+        // console.log(`\nColorDetails saveColor imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
         console.log(`\nColorDetails saveColor imageDetails:\n`, imageDetails, `\n`);
+        console.log(`\nFetching ${fetchUrl} with bodyData: `, bodyData, `\n`);
 
         fetch(fetchUrl, {
         method: 'post', 
