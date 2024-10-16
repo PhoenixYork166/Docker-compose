@@ -1,4 +1,5 @@
 #!/bin/bash
 
-network_name = "fullstack-network1";
+read -p "Enter Docker Network name to create [e.g. test] " $network_name;
+
 docker network create $network_name;

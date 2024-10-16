@@ -57,7 +57,7 @@ const ColorRecognition = ( {
         const color_props_array = color_props;
         
         const devSaveColorUrl = 'http://localhost:3001/save-user-color';
-        const prodSaveColorUrl = 'https://ai-recognition-backend.onrender.com//save-user-color';
+        const prodSaveColorUrl = 'https://ai-recognition-backend.onrender.com/save-user-color';
         const fetchUrl = process.env.NODE_ENV === 'production' ? prodSaveColorUrl : devSaveColorUrl;
 
         // Assuming resData is the Blob
@@ -82,16 +82,19 @@ const ColorRecognition = ( {
         const bodyData = JSON.stringify({ imageRecord, imageDetails });
 
         console.log(`\nColorDetails src/App.js user: `, user, `\n`);
+        console.log(`\nColorDetails src/App.js user.id: `, user.id, `\n`);
         console.log(`\nColorDetails color_props: `, color_props, `\n`);
         console.log(`\nColorDetails input: `, input, `\n`);
         console.log(`\nColorDetails saveColor imageRecord:\n`, imageRecord, `\n`);
+        console.log(`\nColorDetails saveColor imageRecord.userId:\n`, imageRecord.userId, `\n`);
+        console.log(`\nColorDetails saveColor imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
         console.log(`\nColorDetails saveColor imageDetails:\n`, imageDetails, `\n`);
-        console.log(`\nColorDetails saveColor JSON.stringify({ imageRecord, imageDetails }):\n\nbodyData:\n`, bodyData, `\n`);
 
         fetch(fetchUrl, {
         method: 'post', 
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ // sending stringified this.state variables as JSON objects
+            userId: user.id,
             imageRecord: imageRecord,
             imageDetails: imageDetails
         })

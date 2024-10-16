@@ -1,6 +1,6 @@
 -- 1.
 CREATE TABLE users (
-	id SERIAL PRIMARY KEY, 
+	ID SERIAL PRIMARY KEY, 
 	name VARCHAR(100) NOT NULL, 
 	email TEXT NOT NULL,
 	entries bigint,
@@ -9,14 +9,14 @@ CREATE TABLE users (
 
 -- 2.
 CREATE TABLE login (
-	id serial PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	hash VARCHAR(100) NOT NULL,
 	email TEXT UNIQUE NOT NULL
 );
 
 -- 3.
 CREATE TABLE image_record (
-	id serial PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	user_id integer NOT NULL, 
 	image_url VARCHAR(255) NOT NULL,
 	--metadata VARCHAR(MAX) NOT NULL, 
@@ -54,7 +54,7 @@ CREATE TABLE image_details (
 	image_id INT NOT NULL, --Assuming `image_record`.`id` INT
 	raw_hex VARCHAR(7) NOT NULL, --hex #ffffff
 	--value INT NOT NULL, --hex #ffffff
-	hex_value VARCHAR(10) NOT NULL,
+	hex_value VARCHAR(20) NOT NULL,
 	w3c_hex VARCHAR(7) NOT NULL,
 	w3c_name VARCHAR(50) NOT NULL,
 	FOREIGN KEY (image_id) REFERENCES image_record(id)

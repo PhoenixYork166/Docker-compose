@@ -52,13 +52,13 @@ const saveUserColor = (req, res, db) => {
     // w3c_name VARCHAR(50) NOT NULL,
     // FOREIGN KEY (image_id) REFERENCES image_record(id)
   
-    const { imageRecord, imageDetails } = req.body;
+    const { userId, imageRecord, imageDetails } = req.body;
   
     // console.log(`\nExpress RequestHandler:\n${requestHandlerName}\nreq.body.imageRecord:\n`, imageRecord, `\n\nreq.body.imageDetails:\n`, imageDetails, `\n`);
     console.log(`\nreq.body.imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
     console.log(`\ntypeof req.body.imageRecord.metadata:\n`, typeof imageRecord.metadata, `\n`);
-    console.log(`\nreq.body.imageRecord.userId:\n`, imageRecord.userId, `\n`);
-    console.log(`\ntypeof req.body.imageRecord.userId:\n`, typeof imageRecord.userId, `\n`);
+    console.log(`\nreq.body.userId:\n`, userId, `\n`);
+    console.log(`\ntypeof req.body.userId:\n`, typeof userId, `\n`);
     console.log(`\nreq.body.imageRecord.imageUrl:\n`, imageRecord.imageUrl, `\n`);
     console.log(`\ntypeof req.body.imageRecord.imageUrl:\n`, typeof imageRecord.imageUrl, `\n`);
 
@@ -129,7 +129,8 @@ const saveUserColor = (req, res, db) => {
       const date_time = new Date().toISOString();
   
       trx.insert({
-        user_id: parseInt(imageRecord.userId, 10),
+        // user_id: parseInt(imageRecord.userId, 10),
+        user_id: parseInt(userId, 10),
         image_url: imageRecord.imageUrl,
         metadata: JSON.stringify(imageRecord.metadata),
         date_time: new Date().toISOString()
@@ -166,7 +167,6 @@ const saveUserColor = (req, res, db) => {
       // saveBase64Image(imageRecord.metada, imageRecord.userId.toString());
       console.log(`\nimageRecord.metadata:`, imageRecord.metadata, `\n`);
 
-      const userId = imageRecord.userId;
       const date = new Date().toISOString().replace(/:/g, '-');  // Format date for filename
       const base64Data = imageRecord.metadata;
 
