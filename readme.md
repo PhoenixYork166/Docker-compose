@@ -101,7 +101,7 @@ docker-compose up --build;
 ##
 ## 7. Should you want to start fresh without any existing docker images & docker containers on your host machine 
 ## Watch out! This will remove all existing docker images on your host!
-``bash
+```bash
 docker-compose down;
 bash ./prune-before-docker-compose-up.sh;
 ```
