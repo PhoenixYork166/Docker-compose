@@ -46,8 +46,11 @@ docker logs ai-backend;
 docker logs ai-postgres;
 ```
 
+
+
 ## 3. Database Administration (Postgres)
 ## You may enter PostgreSQL database shell (psql) environment for database administration
+
 ## This Docker composed Full Stack app mounts PostgreSQL TCP Port 5433
 ## Instead of TCP Port 5432 on your host machine (macOS/Windows/AWS EC2)
 ## PostgreSQL password: rootGor
@@ -58,7 +61,9 @@ psql -U postgres -d smart-brain -h 127.0.0.1 -p 5433;
 ## Should you have created any new tables
 
 ## Please put all CREATE TABLE .sql files 
-## into projectFolder/postgresql/postgres-init/init.sql
+## into 
+## projectFolder/postgresql/postgres-init/init.sql
+## Line 86 -- NEW CREATE TABLE SQL here
 
 ## Thus, next time when you recreate this Docker-compose app on other host machines using 
 ```bash
@@ -66,10 +71,14 @@ docker-compose up -d;
 ```
 ## You'll have all your postgres tables ready
 
+
+
 ## 4. Stop Docker-compose
 ```bash
 docker-compose down;
 ```
+
+
 
 ## 5. Code changes
 ## You may add on custom features to this Full Stack app

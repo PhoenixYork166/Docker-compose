@@ -83,5 +83,5 @@ CREATE TRIGGER trigger_check_row_limit_on_image_details
 AFTER INSERT ON image_details
 FOR EACH ROW EXECUTE PROCEDURE enforce_row_limit_on_image_details();
 
-
+-- Paste new CREATE TABLE SQL here
 
