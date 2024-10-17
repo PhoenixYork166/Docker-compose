@@ -73,7 +73,8 @@ services:
       args:
         BACKEND_PORT: 3001
     working_dir: /app
-    command: npm start
+    #command: npm start
+    command: npm run start:dev
     ports:
       - "3001:3001"
     volumes: 
@@ -104,6 +105,7 @@ services:
     command: npm start
     ports:
       - "3000:3000"
+
     # networks:
     #   - ai-network
     

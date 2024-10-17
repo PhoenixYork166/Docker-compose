@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import './App.css';
+
+// Top Navigation panel
 import Navigation from './components/Navigation/Navigation';
+
+// Routes
 import Home from './routes/Home/Home';
-import Signin from './components/Signin/Signin';
-import Register from './components/Register/container/Register';
+import Signin from './routes/Signin/Signin';
+import Register from './routes/Register/container/Register';
+import ColorRecords from './routes/Records/ColorRecords';
 
 // Utility helper functions
 // import loadUserFromLocalStorage from './util/loadUserFromLocalStorage';
@@ -22,6 +27,8 @@ class App extends Component {
 
     const userData = localStorage.getItem('user');
     // const userData = loadUserFromLocalStorage();
+
+
     const defaultRoute = userData? 'home' : 'signin';
 
     this.state = {
@@ -31,6 +38,7 @@ class App extends Component {
       celebrity: {},
       celebrityName: '',
       colors: [],
+      dimensions: { width: window.innerWidth }, // Initialize dimensions state
       age: [],
       face_hidden: true,
       color_hidden: true,
@@ -38,8 +46,12 @@ class App extends Component {
       responseStatusCode: Number(''),
       route: defaultRoute,
       isSignedIn: userData ? true : false,
-      user: JSON.parse(userData) || {}
+      user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
+      userColorRecords: {}
     };
+
+    // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
+    this.handleResize = this.handleResize.bind(this);
 
     // Persisting users' signed in sessions 
     this.loadUserFromLocalStorage();
@@ -48,9 +60,20 @@ class App extends Component {
     this.inactivityTimer = null;
   }
 
+  // Keep tracking window.innerWidth px
+  handleResize() {
+    this.setState({ dimensions: { width: window.innerWidth } });
+  }
+
   componentDidMount() {
     this.loadUserFromLocalStorage();
     this.resetInactivityTimer();
+    // Adding EventListener to window 'resize' events
+    window.addEventListener('resize', this.handleResize);
+    // this.state.dimensions => Periodically clean up this.state.dimensions{} in every 30 seconds
+    this.dimensionsCleanupTimer = setInterval(() => {
+      this.setState({ dimensions: { width: window.innerWidth } });
+    }, 30000); // Reset this.state.dimensions{} in every 30 seconds
   }
 
   // Keep tracking for user
@@ -64,6 +87,9 @@ class App extends Component {
   // useEffect() hook
   componentWillUnmount() {
     clearTimeout(this.inactivityTimer);
+    window.removeEventListener('resize', this.handleResize);
+    // this.state.dimensions => Clear the interval on unmount to avoid memory leak on browser 
+    clearInterval(this.dimensionsCleanupTimer);
   }
   
   resetUser = () => {
@@ -82,6 +108,7 @@ class App extends Component {
       this.removeUserFromLocalStorage();
       console.log(`\nthis.state.isSignedIn after resetUser:\n`,this.state.isSignedIn, `\n`);//true
     })
+
   }
 
   resetInactivityTimer = () => {
@@ -394,8 +421,10 @@ class App extends Component {
     .catch(err => console.log(err));
   };
 
-  // To allow routing through onClick={() => onRouteChange(routeInput)}
+
+  // To allow SPA Routing without React Router DOM through onClick={() => onRouteChange(routeInput)}
   onRouteChange = (routeInput) => {
+    const callbackName = `onRouteChange`;
     switch (routeInput) {
       case 'signout':
         this.setState({ 
@@ -403,6 +432,7 @@ class App extends Component {
           route: 'sigin',
           isSignedIn: false
         });
+        console.log(`\n${callbackName}(signout)\n`);
         break;
       
       // else if onClick={() => onRouteChange('home')}
@@ -412,14 +442,15 @@ class App extends Component {
           route: routeInput,
           isSignedIn: true
         });
+        console.log(`\n${callbackName}(home)\n`);
         return;
 
       case 'colorRecords':
         this.setState({
-          ...this.state,
           route: routeInput,
           isSignedIn: true
-        })
+        });
+        console.log(`\n${callbackName}(colorRecords)\n`);
         return;
       
       // No matter what, still wanna change the route
@@ -451,12 +482,14 @@ class App extends Component {
       box,
       colors,
       celebrity,
+      dimensions,
       imageUrl,
       route,
       input,
       isSignedIn,
       responseStatusCode,
-      user
+      user,
+      userColorRecords
     } = this.state;
 
     const colors_array = colors.map(color => color);
@@ -484,8 +517,9 @@ class App extends Component {
     console.log('\nthis.state.color_hidden', color_hidden);
     console.log('\nthis.state.age_hidden', age_hidden);
     console.log('\nthis.state.responseStatusCode:\n', responseStatusCode);
+    console.log(`\nthis.state.dimensions.width:\n`, dimensions.width, `\n`);
     
-    // Scalability for allowing to add more React routes without React Router DOM
+    // Enhance React Scalability for allowing to add more React routes without React Router DOM
     const routeComponents = {
       'home': (
         <Home
@@ -509,6 +543,7 @@ class App extends Component {
           box={box}
           onRouteChange={this.onRouteChange}
           resetUser={this.resetUser}
+          resetState={this.resetState}
         />
       ),
       'signin': (
@@ -527,7 +562,11 @@ class App extends Component {
         />
       ),
       'colorRecords': (
-        <p></p>
+        <ColorRecords
+          user={user}
+          userColorRecords={userColorRecords}
+          dimensions={dimensions}
+        />
       )
     }
 

@@ -1,73 +1,82 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import classes from './CheckRecords.module.scss';
+// Util
+import useButtonTextRoll from '../../util/buttonTextRoll';
 
-export default function CheckRecordsLi( { dimensions } ) {
+// Parent component
+// src/components/CheckRecords/CheckRecordsPanel.jsx
+export default function CheckRecordsLi( {
+  user, 
+  dimensions,
+  onRouteChange,
+  resetState 
+} ) {
+  const tabs = document.querySelectorAll('.buttons__btn');
 
-    //console.log(`dimensions.width: ${dimensions.width}`);
-    
-    // Hacker effects
-    const Hacker = () => {
-    // Home About Products
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  // CheckRecordsPanel => CheckRecordsLi 'Color Records' button onClick event handler
+  const onColorRecords = (event) => {
+    // event.preventDefault(); // Stop page from refreshing onColorRecords button form submission
 
-    const tabs = document.querySelectorAll(".nav");
+    onRouteChange('colorRecords');
+    // Send Sign In info as HTTP POST request to server localhost:3001
+    // by fetching our server - localhost:3001/get-user-color
+    // fetch(url, {method: '', headers: '', body: JSON.stringify({ userId: user.id }) })
 
-    // Convert NodeList to an array
-    const tabsArray = Array.from(tabs);
+    const devGetUserColorRecordsUrl = 'http://localhost:3001/get-user-color';
+    const prodGetUserColorRecordsUrl = 'https://ai-recognition-backend.onrender.com/get-user-color';
 
-    tabsArray.map((tab) => {
-      tab.onmouseover = (event) => { 
-        let iterations = 0;
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodGetUserColorRecordsUrl : devGetUserColorRecordsUrl;
 
-        const dataValue = event.target.dataset.value;
+    // Fetching http://localhost:3001/signin to retrieve user
+    fetch(fetchUrl, {
+      method: 'post', // Post (Create) to avoid Query Strings
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ // sending stringified this.state.userId variable as a JSON object
+        userId: user.id
+      })
+    })
+    .then(response => response.json()) // Receiving http://localhost:3001/get-user-color from Node server response => JSON.parse() data
+    .then((response) => { // server.js - app.post('/get-user-color') --> res.json(database.users[i])
+      console.log('onColorRecords - response.userId: \n', response.userId, `\n`);
+      console.log('onColorRecords - response.colorData: \n', response.colorData, `\n`);
 
-        if (!dataValue) {
-          console.log("Missing data-value attribute on the element with class: 'nav' ");
-          return;
-        } else {
-          const interval = setInterval(() => {
-            event.target.innerText = event.target.innerText.split("")
-            .map((letter, index) => {
-              // letters[Math.floor(Math.random() * 26)]
-              if (index < iterations) {
-                return event.target.dataset.value[index];
-              }
-              return letters[Math.floor(Math.random() * 26)]
-            })
-            .join("");
-            if(iterations >= event.target.dataset.value.length) { 
-              clearInterval(interval);
-            }
-            iterations += 1;
-            
-          }, 100);
-        }
+      if (response.userId) { // if response.userId exists upon successful fetching from db
+        onRouteChange('colorRecords');
+      } else if (!response.userId) { // if response.userId does NOT exist
+        // Route to 'signin' page
+        onRouteChange('signin');
       }
     })
-
   }
-
-    return (
-        <div className="frosted">
-          <li className={`${classes.recordLi}`}>
-            <a className={`${classes.lk}`}>Celebirty records</a>
-            <a className={`${classes.lk}`}>Color records</a>
-            <a className={`${classes.lk}`}>Age records</a>
-          </li>  
-            {/* <li>
-                <a className={`${className}`}
-                    id={id}
-                    data-value={value}
-                    href={href}
-                    onMouseEnter={() => Hacker()}
-                    style={{
-                        fontSize: dimensions.width > 860 ? fontGt : fontLt,
-                        borderRadius: dimensions.width < 2800 ? "2rem" : "4rem",
-                    }}
-                > 
-                    {value}
-                </a>
-            </li> */}
-        </div>
+    
+  return (
+    <React.Fragment>
+    <div className="buttons">
+      <button 
+        // onClick={onRouteChange('celebrityRecords')}
+        onMouseEnter={useButtonTextRoll(tabs)}
+        data-value="Celebrity records" 
+        className={`${classes.lk} buttons__btn`}
+      >
+        Celebirty records
+      </button>
+      <button 
+        onClick={onColorRecords}
+        onMouseEnter={useButtonTextRoll(tabs)} 
+        data-value="Color records"
+        className={`${classes.lk} buttons__btn`}
+      >
+        Color records
+      </button>
+      <button 
+        // onClick={onRouteChange('ageRecords')}
+        onMouseEnter={useButtonTextRoll(tabs)} 
+        data-value="Age records"
+        className={`${classes.lk} buttons__btn`}
+      >
+        Age records
+      </button>
+    </div>
+    </React.Fragment>
     )
 };

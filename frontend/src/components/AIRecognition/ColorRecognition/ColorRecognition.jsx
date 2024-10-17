@@ -4,6 +4,9 @@ import axios from 'axios';
 
 import ColorDetails from './ColorDetails/ColorDetails';
 
+// Utility functions
+import blobToBase64 from '../../../util/blobToBase64';
+
 // Parent component
 const ColorRecognition = ( { 
     user,
@@ -38,22 +41,12 @@ const ColorRecognition = ( {
           }
         };
         fetchImage();
-      }, [input]); // State management array[] to listen on imageUrl
-    
-    // Function to convert Blob to Base64
-    const blobToBase64 = blob => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = reject;
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-        reader.readAsDataURL(blob);
-    });
+    }, [input]); // State management array[] to listen on imageUrl
 
     // Save button to save Color details into PostgreSQL as blob metadata
     const saveColor = async () => {
         const callbackName = `src/components/AIRecognition/ColorRecognition/ColorDetails/ColorDetails.jsx\nsaveColor = async () => {...}`;
-        
+
         const color_props_array = color_props;
         
         const devSaveColorUrl = 'http://localhost:3001/save-user-color';
@@ -64,7 +57,6 @@ const ColorRecognition = ( {
         const base64Metadata = await blobToBase64(resData);
     
         const imageRecord = {
-        userId: user.id,
         imageUrl: input,
         metadata: base64Metadata,
         dateTime: new Date().toISOString()
@@ -79,17 +71,19 @@ const ColorRecognition = ( {
             }
         });
         
-        const bodyData = JSON.stringify({ imageRecord, imageDetails });
+        const bodyData = JSON.stringify({ 
+            userId: user.id, 
+            imageRecord: imageRecord, 
+            imageDetails: imageDetails 
+        });
 
         console.log(`\nColorDetails src/App.js user: `, user, `\n`);
         console.log(`\nColorDetails src/App.js user.id: `, user.id, `\n`);
         console.log(`\nColorDetails color_props: `, color_props, `\n`);
         console.log(`\nColorDetails input: `, input, `\n`);
         console.log(`\nColorDetails saveColor imageRecord:\n`, imageRecord, `\n`);
-        console.log(`\nColorDetails saveColor imageRecord.userId:\n`, imageRecord.userId, `\n`);
-        // console.log(`\nColorDetails saveColor imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
         console.log(`\nColorDetails saveColor imageDetails:\n`, imageDetails, `\n`);
-        console.log(`\nFetching ${fetchUrl} with bodyData: `, bodyData, `\n`);
+        console.log(`\nFetching ${fetchUrl} with bodyData`, bodyData, `\n`);
 
         fetch(fetchUrl, {
         method: 'post', 

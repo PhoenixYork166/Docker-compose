@@ -6,20 +6,22 @@ import Logo from "../Logo/Logo";
 import { FaList } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 
-// Parent component
-export default function CheckRecords({ isSignedIn, onRouteChange }) {
+// Parent components
+// 1. src/routes/Home.jsx
+export default function CheckRecordsPanel({ 
+  user, 
+  isSignedIn, 
+  onRouteChange,
+  resetState 
+}) {
   // Keep monitor resolution changes
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
 
-  const aboutImgWidth = Math.floor(dimensions.width * 0.3);
-  //console.log(`aboutImgWidth: ${aboutImgWidth}`);
-  const aboutImgMarginLeft = Math.floor(dimensions.width*0.192*0.5);
-  //console.log(`aboutImageMarginLeft: ${aboutImgMarginLeft}`);
-  const headingSize = Math.floor(dimensions.width * 0.035);
-  //console.log(`headingSize: ${headingSize}`);
+  // Nav toggle
+  const [toggle, setToggle] = useState(false);
   
   // For Nav List hidden items margin-bottom
   // window.dimensions.width < 850
@@ -60,8 +62,6 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
       };
   });
   
-  // Nav toggle
-  const [toggle, setToggle] = useState(false);
 
   const onToggle = () => {
     setToggle((toggle) => !toggle);
@@ -75,7 +75,7 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
     return (
       <div className={classes.navShow} >
         <div className={classes.navShowList} >
-          <Logo className={classes.logo} value="Evertex" />
+          <Logo className={classes.logo} value="Smart Brain" />
           <ImCross
             onClick={onToggle}
             //size={30}
@@ -87,9 +87,12 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
           />
         </div>
         <CheckRecordsLi
-                fontGt={fontGt}
-                fontLt={fontLt}
-                dimensions={dimensions}
+          user={user}
+          fontGt={fontGt}
+          fontLt={fontLt}
+          dimensions={dimensions}
+          onRouteChange={onRouteChange}
+          resetState={resetState}
         />
       </div>
     );
@@ -105,9 +108,7 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
         }}
       >
         <div style={{marginLeft: "4%"}}>
-          <Logo className={classes.logo} value="Evertex" />
-          {/* <h3 className ={classes.logo__h3}>EVERTEX</h3> */}
-            {/* Logo Text when Resolution < 860 px */}
+          <Logo className={classes.logo} value="Smart Brain" />
         </div>
 
         <FaList
@@ -128,7 +129,8 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
         className={classes.navgt}
         style={{
           // Nav List Margin bottom
-          marginBottom: dimensions.width < 2800 ? navListMarginBottomGt : navListMarginBottomGGt
+          marginBottom: dimensions.width < 2800 ? 
+            navListMarginBottomGt : navListMarginBottomGGt
         }}
       >
         <div
@@ -145,9 +147,12 @@ export default function CheckRecords({ isSignedIn, onRouteChange }) {
         <div className={`${classes.nav}`}>
           <ul className={`${classes.ls} ${classes.frosted}`}>
             <CheckRecordsLi
-                  fontGt={fontGt}
-                  fontLt={fontLt}
-                  dimensions={dimensions}
+              fontGt={fontGt}
+              fontLt={fontLt}
+              dimensions={dimensions}
+              user={user}
+              onRouteChange={onRouteChange}
+              resetState={resetState}
             />
           </ul>
         </div>
