@@ -12,8 +12,9 @@
 
 ![PostgreSQL](https://raw.githubusercontent.com/docker-library/docs/01c12653951b2fe592c1f93a13b4e289ada0e3a1/postgres/logo.png)
 
+##
+##
 ## Start testing this Docker-compose app
-
 ```bash
 git clone https://github.com/PhoenixYork166/Docker-compose.git
 ```
@@ -22,16 +23,22 @@ git clone https://github.com/PhoenixYork166/Docker-compose.git
 cd Docker-compose
 ```
 
+##
+##
 ## 1. Start Docker-compose
 ```bash
 docker-compose up -d;
 ```
 
+##
+##
 ## 2. Check currently running containers
 ```bash
 docker ps -a;
 ```
 
+##
+##
 ## 3. Inspecting any docker containers status (Frontend/Backend/Database) via logs
 ## Inspecting Frontend (React.js) container status
 ```bash
@@ -46,9 +53,9 @@ docker logs ai-backend;
 docker logs ai-postgres;
 ```
 
-
-
-## 3. Database Administration (Postgres)
+##
+##
+## 4. Database Administration (Postgres)
 ## You may enter PostgreSQL database shell (psql) environment for database administration
 
 ## This Docker composed Full Stack app mounts PostgreSQL TCP Port 5433
@@ -71,16 +78,16 @@ docker-compose up -d;
 ```
 ## You'll have all your postgres tables ready
 
-
-
-## 4. Stop Docker-compose
+##
+##
+## 5. Stop Docker-compose
 ```bash
 docker-compose down;
 ```
 
-
-
-## 5. Code changes
+##
+##
+## 6. Code changes
 ## You may add on custom features to this Full Stack app
 ## Rebuild all docker images for this app
 ```bash
@@ -88,7 +95,9 @@ docker-compose down;
 docker-compose up --build;
 ```
 
-## Should you want to start fresh without any existing docker images & docker containers on your host machine 
+##
+##
+## 7. Should you want to start fresh without any existing docker images & docker containers on your host machine 
 ## Watch out! This will remove all existing docker images on your host!
 ``bash
 docker-compose down;
