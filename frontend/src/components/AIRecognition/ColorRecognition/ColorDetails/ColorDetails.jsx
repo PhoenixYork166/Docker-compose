@@ -5,7 +5,8 @@ import './ColorDetails.css';
 import '../../../AIRecognition/ColorRecognition/ColorRecognition.scss';
 import React from 'react';
 
-// Parent = src/components/AIRecognition/ColorRecognition/ColorRecognition.jsx
+// Parent component
+// src/components/AIRecognition/ColorRecognition/ColorRecognition.jsx
 const ColorDetails = ({ user, input, color_props }) => {
 
   // Using querySelectors to retrieve all Raw Hex values as DOM objects
