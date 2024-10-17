@@ -22,12 +22,27 @@ git clone https://github.com/PhoenixYork166/Docker-compose.git
 cd Docker-compose
 ```
 
-# Start Docker-compose
+## 1. Start Docker-compose
 ```bash
 docker-compose up -d;
 ```
 
-# Stop Docker-compose
+## 2. Stop Docker-compose
 ```bash
 docker-compose down;
+```
+
+## 3. Code changes
+## You may add on custom features to this Full Stack app
+## Rebuild all docker images for this app
+```bash
+docker-compose down;
+docker-compose up --build;
+```
+
+## Should you want to start fresh without any existing docker images & docker containers on your host machine 
+## Watch out! This will remove all existing docker images on your host!
+``bash
+docker-compose down;
+bash ./prune-before-docker-compose-up.sh;
 ```
