@@ -54,7 +54,7 @@ const saveUserColor = (req, res, db) => {
   
     const { userId, imageRecord, imageDetails } = req.body;
   
-    // console.log(`\nExpress RequestHandler:\n${requestHandlerName}\nreq.body.imageRecord:\n`, imageRecord, `\n\nreq.body.imageDetails:\n`, imageDetails, `\n`);
+    console.log(`\nExpress RequestHandler:\n${requestHandlerName}\n`);
     console.log(`\nreq.body.imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
     console.log(`\ntypeof req.body.imageRecord.metadata:\n`, typeof imageRecord.metadata, `\n`);
     console.log(`\nreq.body.userId:\n`, userId, `\n`);
@@ -89,8 +89,8 @@ const saveUserColor = (req, res, db) => {
     ] 
     */
     
-    // SELECT * FROM `image_record`
-    /*
+    /* Knex.js PostgreSQL INSERT */
+    /* Batch1
     db
     .select('*')
     .from('image_record')
@@ -102,8 +102,7 @@ const saveUserColor = (req, res, db) => {
     })
     */
   
-    /* Knex.js PostgreSQL INSERT */
-    /*
+    /* Batch2
     db.insert({
       user_id: parseInt(imageRecord.userId, 10),
       image_url: imageRecord.imageUrl,
@@ -190,20 +189,27 @@ const saveUserColor = (req, res, db) => {
 
       console.log(`\nPerformance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms\n`);
 
-      res.status(200).json({ success: true, status: { code: 200 }, message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms` });
+      return res.status(200).json({ 
+        success: true, 
+        status: { code: 200 }, 
+        message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms` });
     })
     .catch((err) => {
       console.error(`\nError for Express RequestHandler:\n${requestHandlerName}\nfailed...\n`, `Error:\n`, err, `\n`);
   
-      res.status(500).json({ success: false, status: { code: 500 }, message: `Internal Server Error`, error: err.toString()});
+      return res.status(500).json({ 
+        success: false, status: { code: 500 }, message: `Internal Server Error`, error: err.toString()
+      });
     });
 }
   
 const getUserColor = (req, res, db) => {
     printDateTime();
-    const requestHandlerName = `rootDir/controllers/image.js\nsaveColor()`;
+    const start = performance.now();
+
+    const requestHandlerName = `rootDir/controllers/image.js\ngetUserColor()`;
   
-    // From PostgreSQL 
+    /* From PostgreSQL => Replace all 1 to userId */
     // SELECT 
     //   u.id AS user_id, 
     //   ir.id AS image_record_id, 
@@ -233,21 +239,204 @@ const getUserColor = (req, res, db) => {
     //   ir.date_time DESC;
   
     const { userId } = req.body;
-  
+
+    console.log(`\nExpress RequestHandlerName: \n${requestHandlerName}\n`);
     console.log(`\nreq.body.userId:\n`, userId, `\n`);
   
     
-    /* Knex.js PostgreSQL transaction */
-    // db
-    // .then(() => {
-    //   console.log(`\nTransaction for Express RequestHandler:\n${requestHandlerName}completed!\n`);
-    //   res.status(200).json({ success: true, status: { code: 200 }, message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!` });
-    // })
-    // .catch((err) => {
-    //   console.error(`\nError Transaction for Express RequestHandler:\n${requestHandlerName}\nfailed...\n`, `Error:\n`, err, `\n`);
-  
-    //   res.status(500).json({ success: false, status: { code: 500 }, message: `Internal Server Error`, error: err.toString()});
-    // });
+    /* Knex.js PostgreSQL */
+    db.select(
+      'u.id as user_id',
+      'ir.id as image_record_id',
+      'ir.image_url',
+      'ir.metadata',
+      'ir.date_time',
+      'id.raw_hex',
+      'id.hex_value',
+      'id.w3c_hex',
+      'id.w3c_name'
+    )
+    .from('users as u')
+    .join('image_record as ir', 'u.id', 'ir.user_id')
+    .join('image_details as id', 'ir.id', 'id.image_id')
+    .whereIn('ir.id', db('image_record as ir')
+    .select('ir.id')
+    .where('ir.user_id', userId)
+    .orderBy('ir.date_time', 'desc')
+    .limit(10)
+    )
+    .where('u.id', userId)
+    .orderBy('ir.date_time', 'desc')
+    .then((results) => {
+      const end = performance.now();
+      const duration = end - start;
+
+      console.log(`\n\nExpress RequestHandler:\n${requestHandlerName}\n`);
+      console.log(`\nSucceeded in retrieving\nuser: ${userId}\nColor Records from PostgreSQL\n`);
+      console.log(`\nPerformance for PostgreSQL operation is:\n${duration}ms\n`);
+
+      return results;
+    })
+    .then((results) => {
+
+      console.log(`\n\nProceed to re-arrange rawData retrieved from PostgreSQL:\n`);
+
+      /* *** raw Data Structure => rawArray[51]
+        rawArray[
+          {
+          user_id: Number,
+          image_record_id: 1,
+          image_url: VARCHAR(255),
+          metadata: JSON,
+          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
+          raw_hex: VARCHAR(7), // image_record_id: 1
+          hex_value: VARCHAR(20), // image_record_id: 1
+          w3c_name: VARCHAR(50), // image_record_id: 1
+          w3c_hex: VARCHAR(7) // image_record_id: 1
+          },
+          {
+          user_id: Number,
+          image_record_id: 1,
+          image_url: VARCHAR(255),
+          metadata: JSON,
+          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
+          raw_hex: VARCHAR(7), // image_record_id: 1
+          hex_value: VARCHAR(20), // image_record_id: 1
+          w3c_name: VARCHAR(50), // image_record_id: 1
+          w3c_hex: VARCHAR(7) // image_record_id: 1
+          },
+          {
+          user_id: Number,
+          image_record_id: 2,
+          image_url: VARCHAR(255),
+          metadata: JSON{""},
+          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
+          raw_hex: VARCHAR(7), // image_record_id: 2
+          hex_value: VARCHAR(20), // image_record_id: 2
+          w3c_name: VARCHAR(50), // image_record_id: 2
+          w3c_hex: VARCHAR(7) // image_record_id: 2
+          },
+          {
+          user_id: Number,
+          image_record_id: 2,
+          image_url: VARCHAR(255),
+          metadata: JSON{""},
+          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
+          raw_hex: VARCHAR(7), // image_record_id: 2
+          hex_value: VARCHAR(20), // image_record_id: 2
+          w3c_name: VARCHAR(50), // image_record_id: 2
+          w3c_hex: VARCHAR(7) // image_record_id: 2
+          },
+        ]
+        
+        *** desiredDataStructure =>
+          colorRecordsPage[10] => 10 elements per page
+          Splitting each colorRecordsPage data based on UNIQUE date_time
+        colorRecordsPage[
+          {
+          // Only need 1 metadata => Based on UNIQUE date_time
+          metadata: JSON{"fileMetaDataHash"}, 
+          image_record_id: 1,
+          //Unqiue entry based on TIME 2024-10-17 16:34:16.635
+          date_time: timestamp with time zone, 
+          // => rax_hex[] based on image_record_id: 1
+          raw_hex: ["VARCHAR(7)", "VARCHAR(7)"], 
+          // => rax_hex[] based on image_record_id: 1
+          hex_value: ["VARCHAR(20)", "VARCHAR(20)"], 
+          // => rax_hex[] based on image_record_id: 1
+          w3c_name: ["VARCHAR(50)", "VARCHAR(50)"], 
+          // => rax_hex[] based on image_record_id: 1
+          w3c_hex: ["VARCHAR(7)", "VARCHAR(7"] 
+          },
+          {
+          // Only need 1 metadata => Based on UNIQUE date_time
+          metadata: JSON{"fileMetaDataHash"},
+          //Unqiue entry based on TIME 2024-10-17 16:34:16.635
+          date_time: timestamp with time zone, 
+          image_record_id: 2,
+          // => rax_hex[] based on image_record_id: 2
+          raw_hex: ["VARCHAR(7)", "VARCHAR(7)"], 
+          // => rax_hex[] based on image_record_id: 2
+          hex_value: ["VARCHAR(20)", "VARCHAR(20)"],
+          // => rax_hex[] based on image_record_id: 2 
+          w3c_name: ["VARCHAR(50)", "VARCHAR(50)"], 
+          // => rax_hex[] based on image_record_id: 2
+          w3c_hex: ["VARCHAR(7)", "VARCHAR(7"] 
+          },
+        ]
+      */
+      const transformData = (rawData) => {
+        // Step 1: Group by 'date_time' and 'image_record_id'
+        const groupedByDateTime = rawData.reduce((acc, cur) => {
+          const dateTime = cur.date_time;
+          const recordId = cur.image_record_id;
+
+          if (!acc[dateTime]) {
+              acc[dateTime] = {};
+          }
+          if (!acc[dateTime][recordId]) {
+              acc[dateTime][recordId] = {
+                  metadata: cur.metadata,  // Assuming the first metadata encountered is used
+                  date_time: dateTime,
+                  image_record_id: recordId,
+                  raw_hex: [],
+                  hex_value: [],
+                  w3c_name: [],
+                  w3c_hex: []
+              };
+          }
+
+          // Append color data
+          acc[dateTime][recordId].raw_hex.push(cur.raw_hex);
+          acc[dateTime][recordId].hex_value.push(cur.hex_value);
+          acc[dateTime][recordId].w3c_name.push(cur.w3c_name);
+          acc[dateTime][recordId].w3c_hex.push(cur.w3c_hex);
+
+          return acc;
+        }, {});
+
+        // Step 2: Flatten the structure into an array
+        let result = [];
+        Object.keys(groupedByDateTime).forEach(dateTime => {
+            Object.values(groupedByDateTime[dateTime]).forEach(record => {
+                result.push(record);
+            });
+        });
+
+        // Step 3: Implement pagination (10 records per page)
+        const pages = [];
+        for (let i = 0; i < result.length; i += 10) {
+            pages.push(result.slice(i, i + 10));
+        }
+
+        return pages;
+      }
+
+      const transformedData = transformData(results);
+      // const finalData = JSON.stringify(transformedData, null, 2);
+      // console.log(`\n\nResponse to be sent to Frontend\nJSON.stringify(transformedData, null, 2):\n`);
+      // console.log(finalData);
+      const end = performance.now();
+      const duration = end - start;
+      console.log(`\n\nPerformance for transforming Data Structure for\nExpress RequestHandler:\n${requestHandlerName}\nis:\n${duration}ms\n`);
+
+      return res.status(200).json({ 
+        success: true, 
+        status: { code: 200 }, 
+        message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms`,
+        colorData: transformedData
+      });
+    })
+    .catch((err) => {
+      console.error(`\nError in Express RequestHandler:\n${requestHandlerName}\n\nError: ${err}\n`);
+
+      return res.status(501).json({ 
+        success: false, 
+        status: { code: 501 }, 
+        message: `Failed Express RequestHandler ${requestHandlerName}Internal Server Error`, 
+        error: err.toString()
+      });
+    });
 };
 
 

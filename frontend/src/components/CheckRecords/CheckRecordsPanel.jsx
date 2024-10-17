@@ -8,12 +8,13 @@ import { ImCross } from "react-icons/im";
 
 // Parent components
 // 1. src/routes/Home.jsx
-export default function CheckRecordsPanel({ 
+const CheckRecordsPanel = ({ 
   user, 
   isSignedIn, 
   onRouteChange,
+  onColorRecordsButton,
   resetState 
-}) {
+}) => {
   // Keep monitor resolution changes
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -92,6 +93,7 @@ export default function CheckRecordsPanel({
           fontLt={fontLt}
           dimensions={dimensions}
           onRouteChange={onRouteChange}
+          onColorRecordsButton={onColorRecordsButton}
           resetState={resetState}
         />
       </div>
@@ -171,4 +173,4 @@ export default function CheckRecordsPanel({
   // return dimensions.width > mobileBreakpoint ? <NavGt860 /> : <NavLt860 />;
 }
 
-
+export default CheckRecordsPanel;

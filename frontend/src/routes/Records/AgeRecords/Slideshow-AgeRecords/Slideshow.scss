@@ -1,10 +1,10 @@
-@import "../../../sass/abstracts/variables";
-@import "../../../sass/components/button";
-@import "../../../sass/layout/grid/grid.scss";
-@import "../../../sass/base/animations";
+@import "../../../../sass/abstracts/variables";
+@import "../../../../sass/components/button";
+@import "../../../../sass/layout/grid/grid.scss";
+@import "../../../../sass/base/animations";
 // Cutom Google Font Family
 @import url("https://fonts.googleapis.com/css?family=Roboto");
-@import "../../../sass/components/frosted";
+@import "../../../../sass/components/frosted";
 
 .root {
     //width: 90vw;
@@ -63,7 +63,7 @@
             &:hover {
                 color: rgba($color-secondary-dark2, 1);
                 //box-shadow: 0.2rem 0.2rem 0.2rem 0.2rem rgba($color-black, 0.6);
-                transform: translateY(-0.5rem);
+                transform: translateY(-0.1rem);
                 box-shadow: 0 0 3rem 1rem rgba($color-white, 0.7);
 
                 //Frosted effect

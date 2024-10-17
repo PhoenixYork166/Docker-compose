@@ -36,38 +36,6 @@ const db = knex({
     }
 });
 
-// const db = knex({
-//     development: {
-//         client: 'pg',
-//         connection: `postgres://${process.env.POSTGRES_USERNAME}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_SERVICENAME}/${process.env.POSTGRES_DB}` }
-//     }
-// );
-
-// const db = knex({
-//     client: 'pg',
-//     connection: {
-//         host: 'ai-postgresql',
-//         user: 'postgres',
-//         password: 'rootGor',
-//         database: 'smart-brain'
-//         // port: 5432
-//     }
-// })
-
-
-/* Connecting to local dev server & dev db postgreSQL */
-// const db = knex({
-//  client: 'pg',
-//  connection: `postgres://${process.env.POSTGRES_USERNAME}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_SERVICE}/${process.env.POSTGRES_DB}`
-//  connection: {
-//      host: process.env.POSTGRES_LOCALHOST, // Comment out for docker-compose
-//      user: process.env.POSTGRES_USERNAME,
-//      password: process.env.POSTGRES_PASSWORD,
-//      database: process.env.POSTGRES_DB,
-//      port: 5433
-//  }
-// });
-
 // Describing table named 'users' on our local dev server
 db.select('*').from('pg_stat_activity')
 .then((dbConnection) => {

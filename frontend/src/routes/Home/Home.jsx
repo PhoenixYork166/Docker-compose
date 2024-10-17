@@ -28,6 +28,7 @@ const Home = ( {
     age,
     age_hidden,
     box,
+    onColorRecordsButton,
     onRouteChange,
     resetUser,
     resetState 
@@ -43,6 +44,7 @@ const Home = ( {
             <CheckRecordsPanel 
                 user={user} 
                 isSignedIn={isSignedIn} 
+                onColorRecordsButton={onColorRecordsButton}
                 onRouteChange={onRouteChange}
                 resetState={resetState}
             />

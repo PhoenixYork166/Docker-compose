@@ -1,0 +1,36 @@
+@import "../../sass//abstracts/variables";
+@import "../../sass/components/button";
+@import "../../sass/layout/grid/grid.scss";
+@import "../../sass/base/animations";
+// Cutom Google Font Family
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+@import "../../sass/components/frosted";
+
+.container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+
+    .recordsHeading {
+        
+        width: 85%;
+        color: rgba($font, 1);
+        cursor: pointer;
+        transition: 0.5s ease-in-out;
+    
+        &:hover {
+            color: rgba($color-secondary-dark2, 1);
+        }
+    
+        &:active {
+            color: rgba($font, 1); 
+        }
+    }
+
+    @media (min-width: 860px) {
+        .recordsHeading {
+            width: 100%;
+        }
+    }
+}

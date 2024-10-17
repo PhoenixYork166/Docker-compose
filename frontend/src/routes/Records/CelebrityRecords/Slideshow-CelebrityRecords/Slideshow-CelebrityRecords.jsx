@@ -3,13 +3,11 @@ import "./Slideshow.scss";
 import { MaterialSymbol } from 'react-material-symbols';
 import 'react-material-symbols/rounded';
 
-import SlideshowDetails from "./SlideshowDetails";
-
 // Parent component
 // 1. src/routes/Records/ColorRecords.jsx
-const Slideshow = ( { 
-    dimensions, 
-
+const SlideshowCelebrityRecords = ( { 
+    dimensions,
+    userCelebrityRecords
     } ) => {
     
     // useState Slideshow officePhotos' index
@@ -35,7 +33,7 @@ const Slideshow = ( {
     const btnParentWidthGt = Math.floor(slideshowWidthGt * 0.12);
     const btnParentWidthLt = Math.floor(slideshowWidthLt * 0.12);
 
-    // To update Slideshow officePhotos' index
+    // To update Slideshow Photos' index
     // const updateIndex = (newIndex) => {
     //     if (newIndex < 0) {
     //         // Not to show when officePhotos.length < 0
@@ -80,7 +78,7 @@ const Slideshow = ( {
                         transform: `translate(-${activeIndex * 100}%)`,
                     }}
                 >
-                <p></p>
+                    <p>Slideshow DateTime testing</p>
                     {/* {BraPhotos.map((item, i) => {
                         return (
                             // <BraItem 
@@ -103,12 +101,6 @@ const Slideshow = ( {
                         width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt,
                     }}
                 >
-                    {/* 
-                        Check out ./public/index.html 
-                        Line 12 to 37
-                        for usage of Radio button checked usage
-                    */}
-                    {/* This is for < Arrow Left iOS from Google Fonts */}
                     <button 
                         style={{
                             width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
@@ -118,7 +110,10 @@ const Slideshow = ( {
                             // updateIndex(activeIndex - 1);
                         }}
                     >
-                        <span class="material-symbols-outlined">arrow_back_ios</span>{" "}
+                    <MaterialSymbol 
+                    icon="arrow_back_ios" 
+                    style={{width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt}}
+                    />
                     </button>
 
                     <div className="indicators"
@@ -126,6 +121,7 @@ const Slideshow = ( {
                             //width: dimensions.width >= mobileBreakpoint ? indicatorWidthGt : indicatorWidthLt,
                         }}
                     >
+                        <p>Slideshow Indicator testing</p>
                         {/* To relay same number of Radio Buttons Checked 
                         according to number of existing BraPhotos */}
 
@@ -166,11 +162,10 @@ const Slideshow = ( {
                             // updateIndex(activeIndex + 1);
                         }}
                     >
-                        <MaterialSymbol 
-                        icon="arrow_forward_ios" 
-                        style={{width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt}}
-                        />
-                        <span class="material-symbols-outlined">arrow_forward_ios</span> 
+                    <MaterialSymbol 
+                    icon="arrow_forward_ios" 
+                    style={{width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt}}
+                    />
                     </button>
                 </div>
 
@@ -199,4 +194,4 @@ const Slideshow = ( {
     )
 }
 
-export default Slideshow;
+export default SlideshowCelebrityRecords;

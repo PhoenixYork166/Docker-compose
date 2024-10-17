@@ -11,7 +11,9 @@ import Register from './routes/Register/container/Register';
 
 // User Records
 import CheckRecordsPanel from './components/CheckRecords/CheckRecordsPanel';
-import ColorRecords from './routes/Records/ColorRecords';
+import ColorRecords from './routes/Records/ColorRecords/ColorRecords';
+import CelebrityRecords from './routes/Records/CelebrityRecords/CelebrityRecords';
+import AgeRecords from './routes/Records/AgeRecords/AgeRecords';
 
 // Utility helper functions
 // import loadUserFromLocalStorage from './util/loadUserFromLocalStorage';
@@ -31,7 +33,6 @@ class App extends Component {
     const userData = localStorage.getItem('user');
     // const userData = loadUserFromLocalStorage();
 
-
     const defaultRoute = userData? 'home' : 'signin';
 
     this.state = {
@@ -50,7 +51,9 @@ class App extends Component {
       route: defaultRoute,
       isSignedIn: userData ? true : false,
       user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
-      userColorRecords: {}
+      userColorRecords: null,
+      userCelebrityRecords: null,
+      userAgeRecords: null
     };
 
     // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
@@ -73,10 +76,10 @@ class App extends Component {
     this.resetInactivityTimer();
     // Adding EventListener to window 'resize' events
     window.addEventListener('resize', this.handleResize);
-    // this.state.dimensions => Periodically clean up this.state.dimensions{} in every 30 seconds
+    // this.state.dimensions => Periodically clean up this.state.dimensions{} in every 5 minutes
     this.dimensionsCleanupTimer = setInterval(() => {
       this.setState({ dimensions: { width: window.innerWidth } });
-    }, 30000); // Reset this.state.dimensions{} in every 30 seconds
+    }, 300000); // Reset this.state.dimensions{} in every 5 minutes
   }
 
   // Keep tracking for user
@@ -220,17 +223,58 @@ class App extends Component {
       })
       .then(response => {
         return response.json()
-      })
-      .then(fetchedEntries => {
-        console.log(`fetched ENTRIES from server: \n ${fetchedEntries}`);
-        console.log(`typeof fetched ENTRIES from server: \n ${typeof fetchedEntries}`);
-         this.setState(Object.assign(this.state.user, {
+    })
+    .then(fetchedEntries => {
+      console.log(`fetched ENTRIES from server: \n ${fetchedEntries}`);
+      console.log(`typeof fetched ENTRIES from server: \n ${typeof fetchedEntries}`);
+
+      this.setState(Object.assign(this.state.user, {
           entries: fetchedEntries
-        }), () => {
-          // console.log(`this.state.user.entries is: ${this.state.user.entries}`);
+      }), () => {
+      // console.log(`this.state.user.entries is: ${this.state.user.entries}`); 
         })
-        })
-      .catch(err => console.log(err))
+      })
+      .catch(err => {
+        console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`)
+      });
+  }
+
+  // For <SaveColorBtn /> in <ColorRecognition />
+  // Arrow function to send this.state.state_raw_hex_array
+  // to server-side right after setting state for state_raw_hex_array
+  // to avoid delay in server-side
+  loadRawHex = () => {
+    const devFetchRawHexUrl = 'http://localhost:3001/image';
+    const prodFetchRawHexUrl = 'https://ai-recognition-backend.onrender.com/image';
+    
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchRawHexUrl : devFetchRawHexUrl;
+
+    /* Sending state user.id && state_raw_hex_array to local server-side */
+    // Fetching live Web Server on Render
+    fetch(fetchUrl, {
+      method: 'put', // PUT (Update) 
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+      id: this.state.user.id,
+      raw_hex: this.state.state_raw_hex_array
+      })
+    })
+    .then(response => response.json()) // string to json
+    .then(fetchedUser => { // entries is coming from server-side response
+    console.log('fetchedUser: ', fetchedUser);
+
+    // Object.assign(target, source)
+    this.setState(Object.assign(this.state.user, {
+      entries: fetchedUser.entries,
+      raw_hex: this.state.state_raw_hex_array
+    }), () => {
+      console.log(`this.state.user.entries is: ${this.state.user.entries}`);
+      console.log(`raw_hex array passed to server-side: ${this.state.state_raw_hex_array}`);
+    })
+    })
+    .catch(err => {
+      console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`)
+    });
   }
 
   // ClarifaiAPI Celebrity Face Detection model
@@ -288,9 +332,56 @@ class App extends Component {
         // this.displayCelebrity(this.findCelebrity(response));
         this.displayCelebrity(findCelebrity(response));
         this.setState({ responseStatusCode: response.status.code });
-        })
-      .catch(err => console.log(err));
+      })
+      .catch(err => {
+        console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`)
+      });
   };
+
+  // Retrieve User's Color Records from Node.js => PostgreSQL
+  onColorRecordsButton = () => {
+    // Reset all state variables to allow proper rendering of side-effects
+    this.resetState();
+
+    // Change Route to colorRecords => Checkout App.js onRouteChange()
+    this.onRouteChange('colorRecords');
+
+    const devFetchGetUserColorUrl = 'http://localhost:3001/get-user-color';
+    const prodFetchGetUserColorUrl = 'https://ai-recognition-backend.onrender.com/get-user-color';
+
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchGetUserColorUrl : devFetchGetUserColorUrl;
+
+    const bodyData = JSON.stringify({
+      userId: this.state.user.id
+    });
+
+    console.log(`\nFetching ${fetchUrl} with bodyData: `, bodyData, `\n`);
+
+    fetch(fetchUrl, {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        userId: this.state.user.id
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log(`\nFetched User's Colors Records obj:\n`, response, `\n`);
+      console.log(`\nFetched User's Colors Records obj:\n`, response.colorData, `\n`);
+      // If there's a response upon fetching Clarifai API
+      // fetch our server-side to update entries count too
+      if (response) { 
+        // this.updateEntries();
+        this.setState({
+          userColorRecords: response.colorData
+        });
+
+      };
+    })
+    .catch((err) => {
+      console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`);
+    });
+  }
 
   // ClarifaiAPI Color Detection model
   onColorButton = () => {
@@ -334,44 +425,10 @@ class App extends Component {
 
       this.displayColor(findColor(response));
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`)
+    });
   };
-
-  // For <SaveColorBtn /> in <ColorRecognition />
-  // Arrow function to send this.state.state_raw_hex_array
-  // to server-side right after setting state for state_raw_hex_array
-  // to avoid delay in server-side
-  loadRawHex = () => {
-    const devFetchRawHexUrl = 'http://localhost:3001/image';
-    const prodFetchRawHexUrl = 'https://ai-recognition-backend.onrender.com/image';
-    
-    const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchRawHexUrl : devFetchRawHexUrl;
-
-    /* Sending state user.id && state_raw_hex_array to local server-side */
-    // Fetching live Web Server on Render
-    fetch(fetchUrl, {
-      method: 'put', // PUT (Update) 
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-      id: this.state.user.id,
-      raw_hex: this.state.state_raw_hex_array
-      })
-    })
-    .then(response => response.json()) // string to json
-    .then(fetchedUser => { // entries is coming from server-side response
-    console.log('fetchedUser: ', fetchedUser);
-
-    // Object.assign(target, source)
-    this.setState(Object.assign(this.state.user, {
-      entries: fetchedUser.entries,
-      raw_hex: this.state.state_raw_hex_array
-    }), () => {
-      console.log(`this.state.user.entries is: ${this.state.user.entries}`);
-      console.log(`raw_hex array passed to server-side: ${this.state.state_raw_hex_array}`);
-    })
-    })
-    .catch (err => console.log(err))
-  }
   
   // ClarifaiAPI Age Detection model
   onAgeButton = () => {
@@ -421,7 +478,9 @@ class App extends Component {
       };
       this.displayAge(findAge(response));
     })
-    .catch(err => console.log(err));
+    .catch((err) => {
+      console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`)
+    });
   };
 
 
@@ -447,6 +506,14 @@ class App extends Component {
         });
         console.log(`\n${callbackName}(home)\n`);
         return;
+      
+      case 'ageRecords':
+        this.setState({
+          route: routeInput,
+          isSignedIn: true
+        });
+        console.log(`\n${callbackName}(ageRecords)\n`);
+        return;
 
       case 'colorRecords':
         this.setState({
@@ -454,6 +521,14 @@ class App extends Component {
           isSignedIn: true
         });
         console.log(`\n${callbackName}(colorRecords)\n`);
+        return;
+
+      case 'celebrityRecords':
+        this.setState({
+          route: routeInput,
+          isSignedIn: true
+        });
+        console.log(`\n${callbackName}(celebrityRecords)\n`);
         return;
       
       // No matter what, still wanna change the route
@@ -492,7 +567,10 @@ class App extends Component {
       isSignedIn,
       responseStatusCode,
       user,
+      userAgeRecords,
+      userCelebrityRecords,
       userColorRecords
+      // userColorRecords
     } = this.state;
 
     const colors_array = colors.map(color => color);
@@ -521,6 +599,7 @@ class App extends Component {
     console.log('\nthis.state.age_hidden', age_hidden);
     console.log('\nthis.state.responseStatusCode:\n', responseStatusCode);
     console.log(`\nthis.state.dimensions.width:\n`, dimensions.width, `px\n`);
+    console.log(`\nthis.state.userColorRecords[]: `, this.state.userColorRecords, `\n`);
     
     // Enhance React Scalability for allowing to add more React routes without React Router DOM
     const routeComponents = {
@@ -544,6 +623,9 @@ class App extends Component {
           age={age_props}
           age_hidden={age_hidden}
           box={box}
+          onAgeRecordsButton={this.onAgeRecordsButton}
+          onColorRecordsButton={this.onColorRecordsButton}
+          onCelebrityRecordsButton={this.onCelebrityRecordsButton}
           onRouteChange={this.onRouteChange}
           resetUser={this.resetUser}
           resetState={this.resetState}
@@ -564,15 +646,60 @@ class App extends Component {
           onRouteChange={this.onRouteChange} 
         />
       ),
+      'ageRecords': (
+        <React.Fragment>
+          <CheckRecordsPanel 
+            user={user}
+            isSignedIn={isSignedIn}
+            onRouteChange={this.onRouteChange}
+            dimensions={dimensions}
+            onAgeRecordsButton={this.onAgeRecordsButton}
+            onCelebrityRecordsButton={this.onCelebrityRecordsButton}
+            onColorRecordsButton={this.onColorRecordsButton}
+          />
+          <AgeRecords
+            user={user}
+            isSignedIn={isSignedIn}
+            dimensions={dimensions}
+            userAgeRecords={userAgeRecords}
+          />
+        </React.Fragment>
+      ),
       'colorRecords': (
         <React.Fragment>
           <CheckRecordsPanel 
             user={user}
+            isSignedIn={isSignedIn}
+            onRouteChange={this.onRouteChange}
+            dimensions={dimensions}
+            onAgeRecordsButton={this.onAgeRecordsButton}
+            onCelebrityRecordsButton={this.onCelebrityRecordsButton}
+            onColorRecordsButton={this.onColorRecordsButton}
           />
           <ColorRecords
             user={user}
-            userColorRecords={userColorRecords}
+            isSignedIn={isSignedIn}
             dimensions={dimensions}
+            userColorRecords={userColorRecords}
+          />
+        </React.Fragment>
+      ),
+      'celebrityRecords': (
+        <React.Fragment>
+          <CheckRecordsPanel 
+            user={user}
+            isSignedIn={isSignedIn}
+            onRouteChange={this.onRouteChange}
+            dimensions={dimensions}
+            onAgeRecordsButton={this.onAgeRecordsButton}
+            onCelebrityRecordsButton={this.onCelebrityRecordsButton}
+            onColorRecordsButton={this.onColorRecordsButton}
+          />
+          <CelebrityRecords
+            user={user}
+            isSignedIn={isSignedIn}
+            dimensions={dimensions}
+            userCelebrityRecords={userCelebrityRecords}
           />
         </React.Fragment>
       )
