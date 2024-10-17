@@ -43,8 +43,9 @@ RUN apt-get install -y coreutils
 RUN apt-get install -y busybox
 
 # Clean up APT when done
-RUN apt-get clean && \
-rm -rf /var/lib/apt/lists/*
+# RUN apt-get clean && \
+# rm -rf /var/lib/apt/lists/*
+RUN apt-get clean
 
 # Should you need to install anything via
 # docker exec -it containerName apt install -y toolName;

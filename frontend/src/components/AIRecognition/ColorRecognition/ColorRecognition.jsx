@@ -110,7 +110,7 @@ const ColorRecognition = ( {
 
         // Keep tracking response.status.code
         setResponseStatusCode(response.status.code);
-        console.log(`\nLatest action\nresponse.status.code:\n${responseStatusCode}\n`);
+        console.log(`\n\nsrc/components/ColorRecognition/ColorRecognition.jsx\nLatest action\nresponse.status.code:\n${responseStatusCode}\n`);
 
         })
         .catch((err) => {

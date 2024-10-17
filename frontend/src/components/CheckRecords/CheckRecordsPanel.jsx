@@ -12,7 +12,10 @@ const CheckRecordsPanel = ({
   user, 
   isSignedIn, 
   onRouteChange,
+  onHomeButton,
+  onCelebrityRecordsButton,
   onColorRecordsButton,
+  onAgeRecordsButton,
   resetState 
 }) => {
   // Keep monitor resolution changes
@@ -92,8 +95,10 @@ const CheckRecordsPanel = ({
           fontGt={fontGt}
           fontLt={fontLt}
           dimensions={dimensions}
-          onRouteChange={onRouteChange}
+          onHomeButton={onHomeButton}
+          onCelebrityRecordsButton={onCelebrityRecordsButton}
           onColorRecordsButton={onColorRecordsButton}
+          onAgeRecordsButton={onAgeRecordsButton}
           resetState={resetState}
         />
       </div>
@@ -153,7 +158,6 @@ const CheckRecordsPanel = ({
               fontLt={fontLt}
               dimensions={dimensions}
               user={user}
-              onRouteChange={onRouteChange}
               resetState={resetState}
             />
           </ul>

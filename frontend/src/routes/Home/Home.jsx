@@ -28,7 +28,10 @@ const Home = ( {
     age,
     age_hidden,
     box,
+    onHomeButton,
+    onCelebrityRecordsButton,
     onColorRecordsButton,
+    onAgeRecordsButton,    
     onRouteChange,
     resetUser,
     resetState 
@@ -44,9 +47,12 @@ const Home = ( {
             <CheckRecordsPanel 
                 user={user} 
                 isSignedIn={isSignedIn} 
-                onColorRecordsButton={onColorRecordsButton}
                 onRouteChange={onRouteChange}
                 resetState={resetState}
+                onHomeButton={onHomeButton}
+                onCelebrityRecordsButton={onCelebrityRecordsButton}
+                onColorRecordsButton={onColorRecordsButton}
+                onAgeRecordsButton={onAgeRecordsButton}
             />
             <ImageLinkForm
                 onInputChange={onInputChange}

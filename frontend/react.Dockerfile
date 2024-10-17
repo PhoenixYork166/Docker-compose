@@ -42,8 +42,9 @@ RUN apt-get install -y coreutils
 RUN apt-get install -y busybox
 
 # Clean up APT when done
-RUN apt-get clean && \
-rm -rf /var/lib/apt/lists/*
+# RUN apt-get clean && \
+# rm -rf /var/lib/apt/lists/*
+RUN apt-get clean
 
 # Copy all remaining code from HOST to CONTAINER
 COPY . .

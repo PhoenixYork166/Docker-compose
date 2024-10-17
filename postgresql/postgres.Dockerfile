@@ -18,7 +18,7 @@ COPY ./postgres-init/init.sql /docker-entrypoint-initdb.d/
 USER root
 
 # Define build-time argument for hostname (optional)
-ARG DEFAULT_HOSTNAME=ai-postgresql
+ARG DEFAULT_HOSTNAME=ai-postgres
 
 # Use the hostname in some configuration file or script
 #RUN echo "Hostname of this Container: ${DEFAULT_HOSTNAME}" > /hostname_info.txt
@@ -45,5 +45,6 @@ RUN apt-get install -y busybox
 # Clean up APT when done
 # RUN apt-get clean && \
 # rm -rf /var/lib/apt/lists/*
+RUN apt-get clean
 
 ###

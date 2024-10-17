@@ -277,6 +277,15 @@ class App extends Component {
     });
   }
 
+  // To be passed to <CheckRecordsPanel /> in src/components/CheckRecords/CheckRecrodsPanel.jsx
+  onHomeButton = () => {
+    // Reset all state variables to allow proper rendering from Detection Models
+    this.resetState();
+
+    // Change Route to 'home' => Checkout App.js onRouteChange()
+    this.onRouteChange('home');
+  }
+
   // ClarifaiAPI Celebrity Face Detection model
   onCelebrityButton = () => {
     // Reset all state variables to allow proper rendering from Detection Models
@@ -343,7 +352,7 @@ class App extends Component {
     // Reset all state variables to allow proper rendering of side-effects
     this.resetState();
 
-    // Change Route to colorRecords => Checkout App.js onRouteChange()
+    // Change Route to 'colorRecords' => Checkout App.js onRouteChange()
     this.onRouteChange('colorRecords');
 
     const devFetchGetUserColorUrl = 'http://localhost:3001/get-user-color';
@@ -623,10 +632,12 @@ class App extends Component {
           age={age_props}
           age_hidden={age_hidden}
           box={box}
+          onRouteChange={this.onRouteChange}
+          // 4 Buttons in <CheckRecordsPanel />
+          onHomeButton={this.onHomeButton}
           onAgeRecordsButton={this.onAgeRecordsButton}
           onColorRecordsButton={this.onColorRecordsButton}
           onCelebrityRecordsButton={this.onCelebrityRecordsButton}
-          onRouteChange={this.onRouteChange}
           resetUser={this.resetUser}
           resetState={this.resetState}
         />
@@ -651,11 +662,13 @@ class App extends Component {
           <CheckRecordsPanel 
             user={user}
             isSignedIn={isSignedIn}
-            onRouteChange={this.onRouteChange}
             dimensions={dimensions}
-            onAgeRecordsButton={this.onAgeRecordsButton}
+            onRouteChange={this.onRouteChange}
+            // 4 Buttons in CheckRecordsPanel /> Home, Age records, Celebrity records, Color records
+            onHomeButton={this.onHomeButton}
             onCelebrityRecordsButton={this.onCelebrityRecordsButton}
             onColorRecordsButton={this.onColorRecordsButton}
+            onAgeRecordsButton={this.onAgeRecordsButton}
           />
           <AgeRecords
             user={user}
@@ -670,11 +683,13 @@ class App extends Component {
           <CheckRecordsPanel 
             user={user}
             isSignedIn={isSignedIn}
-            onRouteChange={this.onRouteChange}
             dimensions={dimensions}
-            onAgeRecordsButton={this.onAgeRecordsButton}
+            onRouteChange={this.onRouteChange}
+            // 4 Buttons in CheckRecordsPanel /> Home, Age records, Celebrity records, Color records
+            onHomeButton={this.onHomeButton}
             onCelebrityRecordsButton={this.onCelebrityRecordsButton}
             onColorRecordsButton={this.onColorRecordsButton}
+            onAgeRecordsButton={this.onAgeRecordsButton}
           />
           <ColorRecords
             user={user}
@@ -689,17 +704,25 @@ class App extends Component {
           <CheckRecordsPanel 
             user={user}
             isSignedIn={isSignedIn}
-            onRouteChange={this.onRouteChange}
             dimensions={dimensions}
-            onAgeRecordsButton={this.onAgeRecordsButton}
+            onRouteChange={this.onRouteChange}
+            // 4 Buttons in CheckRecordsPanel /> Home, Age records, Celebrity records, Color records
+            onHomeButton={this.onHomeButton}
             onCelebrityRecordsButton={this.onCelebrityRecordsButton}
             onColorRecordsButton={this.onColorRecordsButton}
+            onAgeRecordsButton={this.onAgeRecordsButton}
           />
           <CelebrityRecords
             user={user}
             isSignedIn={isSignedIn}
             dimensions={dimensions}
+            // this.state.userCelebrityRecords
             userCelebrityRecords={userCelebrityRecords}
+            // 4 Buttons in CheckRecordsPanel /> Home, Age records, Celebrity records, Color records
+            onHomeButton={this.onHomeButton}
+            onCelebrityRecordsButton={this.onCelebrityRecordsButton}
+            onColorRecordsButton={this.onColorRecordsButton}
+            onAgeRecordsButton={this.onAgeRecordsButton}
           />
         </React.Fragment>
       )

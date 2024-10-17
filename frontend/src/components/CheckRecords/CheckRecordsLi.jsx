@@ -10,9 +10,9 @@ export default function CheckRecordsLi( {
   dimensions,
   onRouteChange,
   onHomeButton,
-  onAgeRecordsButton,
-  onColorRecordsButton,
   onCelebrityRecordsButton,
+  onColorRecordsButton,
+  onAgeRecordsButton,
   resetState 
 } ) {
   const tabs = document.querySelectorAll('.buttons__btn');
@@ -21,7 +21,7 @@ export default function CheckRecordsLi( {
     <React.Fragment>
     <div className="buttons">
       <button 
-          // onClick={onHomeButton}
+          onClick={onHomeButton}
           onMouseEnter={useButtonTextRoll(tabs)}
           data-value="Home Page" 
           className={`${classes.lk} buttons__btn`}
@@ -45,7 +45,7 @@ export default function CheckRecordsLi( {
         Color records
       </button>
       <button 
-        //onClick={onAgeRecordsButton}
+        onClick={onAgeRecordsButton}
         onMouseEnter={useButtonTextRoll(tabs)} 
         data-value="Age records"
         className={`${classes.lk} buttons__btn`}
