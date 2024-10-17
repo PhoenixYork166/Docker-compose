@@ -8,6 +8,9 @@ import Navigation from './components/Navigation/Navigation';
 import Home from './routes/Home/Home';
 import Signin from './routes/Signin/Signin';
 import Register from './routes/Register/container/Register';
+
+// User Records
+import CheckRecordsPanel from './components/CheckRecords/CheckRecordsPanel';
 import ColorRecords from './routes/Records/ColorRecords';
 
 // Utility helper functions
@@ -562,11 +565,16 @@ class App extends Component {
         />
       ),
       'colorRecords': (
-        <ColorRecords
-          user={user}
-          userColorRecords={userColorRecords}
-          dimensions={dimensions}
-        />
+        <React.Fragment>
+          <CheckRecordsPanel 
+            user={user}
+          />
+          <ColorRecords
+            user={user}
+            userColorRecords={userColorRecords}
+            dimensions={dimensions}
+          />
+        </React.Fragment>
       )
     }
 

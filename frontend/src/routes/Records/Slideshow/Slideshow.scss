@@ -1,3 +1,11 @@
+@import "../../../sass/abstracts/variables";
+@import "../../../sass/components/button";
+@import "../../../sass/layout/grid/grid.scss";
+@import "../../../sass/base/animations";
+// Cutom Google Font Family
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+@import "../../../sass/components/frosted";
+
 .root {
     //width: 90vw;
     //width: 45vw;
