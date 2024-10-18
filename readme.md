@@ -25,7 +25,9 @@ git clone https://github.com/PhoenixYork166/Docker-compose.git
 cd Docker-compose
 ```
 
-##
+## Watch out...We'll need to wait for 3 minutes after
+## docker-compose up -d;
+## for Node.js => PostgreSQL microservices to start working properly
 ##
 ## 1. Start Docker-compose
 ```bash
