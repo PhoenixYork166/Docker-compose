@@ -28,12 +28,11 @@ const localStorage = window.localStorage;
 class App extends Component {
   constructor() {
     super();
-    // this.state = initialState;
 
     const userData = localStorage.getItem('user');
-    // const userData = loadUserFromLocalStorage();
-
-    const defaultRoute = userData? 'home' : 'signin';
+    const lastRoute = localStorage.getItem('lastRoute');
+    // const defaultRoute = userData ? 'home' : 'signin';
+    const defaultRoute = userData? (lastRoute || 'home') : 'signin';
 
     this.state = {
       input: '', // this.state.input => Users' input imageUrl => Can be used for onClick events
@@ -55,7 +54,6 @@ class App extends Component {
       userCelebrityRecords: null,
       userAgeRecords: null
     };
-
     // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
     this.handleResize = this.handleResize.bind(this);
 
@@ -88,6 +86,10 @@ class App extends Component {
     if (this.state.user !== prevState.user) { 
       this.validateUsers();
     }
+    // ** Storing User's latest route
+    if (this.state.route !== prevState.route) {
+      localStorage.setItem('lastRoute', this.state.route);
+    }
   }
 
   // useEffect() hook
@@ -99,17 +101,7 @@ class App extends Component {
   }
   
   resetUser = () => {
-    // Batch 1
-    // this.resetUser(this.setState.bind(this));
-
-    // Round 1
-    this.setState({
-      user: {},
-      isSignedIn: false,
-      route: 'signin'
-    }, 
-    // Round 2
-    () => {
+    this.setState({ user: {}, isSignedIn: false, route: 'signin'}, () => {
       // this.removeUserFromLocalStorage();
       this.removeUserFromLocalStorage();
       console.log(`\nthis.state.isSignedIn after resetUser:\n`,this.state.isSignedIn, `\n`);//true
@@ -141,7 +133,8 @@ class App extends Component {
         this.setState({ 
           user: JSON.parse(userData), 
           isSignedIn: true,
-          route: 'home'
+          route: localStorage.getItem('lastRoute') || 'home'
+          // ** route: 'home'
         });
       } catch (err) {
         console.error(`\nFailed to parse user data: `, err);
@@ -153,6 +146,8 @@ class App extends Component {
 
   removeUserFromLocalStorage = () => {
     localStorage.removeItem('user');
+    // **
+    localStorage.removeItem('lastRoute');
   }
 
   // For Celebrity detection model
@@ -492,7 +487,7 @@ class App extends Component {
     });
   };
 
-
+  // **
   // To allow SPA Routing without React Router DOM through onClick={() => onRouteChange(routeInput)}
   onRouteChange = (routeInput) => {
     const callbackName = `onRouteChange`;
