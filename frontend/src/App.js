@@ -50,8 +50,8 @@ class App extends Component {
       route: defaultRoute,
       isSignedIn: userData ? true : false,
       user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
-      userColorRecords: null,
       userCelebrityRecords: null,
+      userColorRecords: null, // Retrieving User's Color Records from Postgres
       userAgeRecords: null
     };
     // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
@@ -385,6 +385,8 @@ class App extends Component {
     .catch((err) => {
       console.log(`\nError Fetching ${fetchUrl}:\n${err}\n`);
     });
+
+    console.log(`\nsrc/App.js this.state.userColorRecords:\n`, this.state.userColorRecords, `\n`);
   }
 
   // ClarifaiAPI Color Detection model
@@ -618,6 +620,7 @@ class App extends Component {
           celebrityName={celebrity.name}
           face_hidden={face_hidden}
           onInputChange={this.onInputChange}
+          // AI Recognition buttons
           onCelebrityButton={this.onCelebrityButton}
           onColorButton={this.onColorButton}
           onSaveColorButton={this.onSaveColorButton}
@@ -627,12 +630,23 @@ class App extends Component {
           age={age_props}
           age_hidden={age_hidden}
           box={box}
+          // Callback to allow custom onClick methods in Child components
           onRouteChange={this.onRouteChange}
           // 4 Buttons in <CheckRecordsPanel />
+          // 1. 'Home' page
           onHomeButton={this.onHomeButton}
-          onAgeRecordsButton={this.onAgeRecordsButton}
-          onColorRecordsButton={this.onColorRecordsButton}
+          // 2. 'Celebrity records' page
           onCelebrityRecordsButton={this.onCelebrityRecordsButton}
+          // Passing userColorRecords to 'Color records' page
+          userCelebrityRecords={userCelebrityRecords}
+          // 3. 'Color records' page
+          onColorRecordsButton={this.onColorRecordsButton}
+          // Passing userColorRecords to 'Color records' page
+          userColorRecords={userColorRecords}
+          // 4. 'Age records' page
+          onAgeRecordsButton={this.onAgeRecordsButton}
+          // Passing userColorRecords to 'Color records' page
+          userAgeRecords={userAgeRecords}
           resetUser={this.resetUser}
           resetState={this.resetState}
         />

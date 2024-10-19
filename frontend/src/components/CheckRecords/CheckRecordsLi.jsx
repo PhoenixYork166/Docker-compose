@@ -9,10 +9,14 @@ export default function CheckRecordsLi( {
   user, 
   dimensions,
   onRouteChange,
+  // 1. 'Home' page
   onHomeButton,
+  // 2. 'Celebrity records' page
   onCelebrityRecordsButton,
+  // 3. 'Color records' page
   onColorRecordsButton,
-  onAgeRecordsButton,
+  // 4. 'Age records' page
+  onAgeRecordsButton,    
   resetState 
 } ) {
   const tabs = document.querySelectorAll('.buttons__btn');

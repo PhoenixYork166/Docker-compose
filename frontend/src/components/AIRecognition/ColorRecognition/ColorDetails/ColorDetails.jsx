@@ -2,7 +2,7 @@ import '../../../../sass/base/_utilities.scss';
 import Loading from '../../../Loading/Loading';
 import './ColorDetails.css';
 // import '../../../ImageLinkForm/ImageLinkForm.scss';
-import '../../../AIRecognition/ColorRecognition/ColorRecognition.scss';
+import '../ColorRecognition.scss';
 import React from 'react';
 
 // Parent component

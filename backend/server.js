@@ -17,11 +17,12 @@ require('dotenv').config({ path: `${rootDir}/.env`});
 const printDateTime = require('./util/printDateTime').printDateTime;
 const saveBase64Image = require('./util/saveBase64Image').saveBase64Image;
 
+const transformColorData = require('./util/records-data-transformations/transformColorData');
+
 // Requests Logging
 const logger = require('./middleware/requestLogger');
 
 console.log(`\n\nprocess.env.POSTGRES_HOST:\n${process.env.POSTGRES_HOST}\n\nprocess.env.POSTGRES_USER:\n${process.env.POSTGRES_USERNAME}\n\nprocess.env.POSTGRES_PASSWORD:\n${process.env.POSTGRES_PASSWORD}\n\n\nprocess.env.POSTGRES_DB:\n${process.env.POSTGRES_DB}\n\n\nprocess.env.POSTGRES_PORT:\n${process.env.POSTGRES_PORT}\n\nprocess.env.NODE_ENV:\n${process.env.NODE_ENV}\n`);
-
 
 /* Docker-compose env - Connecting to PostgreSQL DB */
 const db = knex({
@@ -100,7 +101,7 @@ app.post('/colorimage', (req, res) => { image.handleColorApi(req, res, fetch) } 
 app.post('/ageimage', (req, res) => { image.handleAgeApi(req, res, fetch) } )
 
 app.post('/save-user-color', (req, res) => {records.saveUserColor(req, res, db) } )
-app.post('/get-user-color', (req, res) => {records.getUserColor(req, res, db) } )
+app.post('/get-user-color', (req, res) => { records.getUserColor(req, res, db, transformColorData) })
 
 // app.listen(port, fn)
 // fn will run right after listening to a port

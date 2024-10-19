@@ -8,14 +8,23 @@ import { ImCross } from "react-icons/im";
 
 // Parent components
 // 1. src/routes/Home.jsx
+// Child components
+// 2. src/components/CheckRecords/CheckRecordsLi.jsx
 const CheckRecordsPanel = ({ 
   user, 
   isSignedIn, 
   onRouteChange,
+  // 1. 'Home' page
   onHomeButton,
+  // 2. 'Celebrity records' page
   onCelebrityRecordsButton,
+  userCelebrityRecords,
+  // 3. 'Color records' page
   onColorRecordsButton,
-  onAgeRecordsButton,
+  userColorRecords,
+  // 4. 'Age records' page
+  onAgeRecordsButton,    
+  userAgeRecords,
   resetState 
 }) => {
   // Keep monitor resolution changes
@@ -95,10 +104,16 @@ const CheckRecordsPanel = ({
           fontGt={fontGt}
           fontLt={fontLt}
           dimensions={dimensions}
+          // 1. 'Home' page
           onHomeButton={onHomeButton}
+          // 2. 'Celebrity records' page
           onCelebrityRecordsButton={onCelebrityRecordsButton}
+          // 3. 'Color records' page
+          userColorRecords={userColorRecords}
           onColorRecordsButton={onColorRecordsButton}
-          onAgeRecordsButton={onAgeRecordsButton}
+          // 4. 'Age records' page
+          userAgeRecords={userAgeRecords}
+
           resetState={resetState}
         />
       </div>

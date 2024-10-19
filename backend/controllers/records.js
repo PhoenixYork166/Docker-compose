@@ -157,10 +157,13 @@ const saveUserColor = (req, res, db) => {
       .then(trx.commit) // no error => commit transaction
       // in case registration failed => rollback both 'login' && 'users' SQL transactions
       .catch(trx.rollback); // Rollback transaction in case of any error during the transaction
+
+      // Promise chaining imageRecord.metadata for further Node.js fs process
+      return imageRecord.metadata;
     })
-    .then(() => {
-      console.log(`\nTransaction for Express RequestHandler:\n${requestHandlerName}completed!\n`);
-      console.log(`\nProceed to store imageRecord.metadata 'base64' to Node server locally for imageRecord.metadata\n\n`);
+    .then((metadata) => {
+      console.log(`\n\nTransaction for Express RequestHandler:\n${requestHandlerName} completed!\n`);
+      console.log(`\n\nProceed to store metadata 'base64' to Node server locally...\n`);
       
       // Save .jpg image input by users locally to Node.js server
       // saveBase64Image(imageRecord.metada, imageRecord.userId.toString());
@@ -202,14 +205,8 @@ const saveUserColor = (req, res, db) => {
       });
     });
 }
-  
-const getUserColor = (req, res, db) => {
-    printDateTime();
-    const start = performance.now();
 
-    const requestHandlerName = `rootDir/controllers/image.js\ngetUserColor()`;
-  
-    /* From PostgreSQL => Replace all 1 to userId */
+/* From PostgreSQL => Replace all 1 to userId */
     // SELECT 
     //   u.id AS user_id, 
     //   ir.id AS image_record_id, 
@@ -237,7 +234,12 @@ const getUserColor = (req, res, db) => {
     //   )
     // ORDER BY 
     //   ir.date_time DESC;
-  
+const getUserColor = (req, res, db, transformColorData) => {
+    printDateTime();
+    const start = performance.now();
+
+    const requestHandlerName = `rootDir/controllers/image.js\ngetUserColor()`;
+    
     const { userId } = req.body;
 
     console.log(`\nExpress RequestHandlerName: \n${requestHandlerName}\n`);
@@ -267,7 +269,7 @@ const getUserColor = (req, res, db) => {
     )
     .where('u.id', userId)
     .orderBy('ir.date_time', 'desc')
-    .then((results) => {
+    .then((sqlResults) => {
       const end = performance.now();
       const duration = end - start;
 
@@ -275,157 +277,36 @@ const getUserColor = (req, res, db) => {
       console.log(`\nSucceeded in retrieving\nuser: ${userId}\nColor Records from PostgreSQL\n`);
       console.log(`\nPerformance for PostgreSQL operation is:\n${duration}ms\n`);
 
-      return results;
+      if (!sqlResults || sqlResults.length === 0) {
+        throw new Error(`\nNo userColorRecords found\n`);
+      }
+
+      return { sqlResults, transformColorData };
     })
-    .then((results) => {
+    .then(({ sqlResults, transformColorData }) => {
+      console.log(`\n\nLast Promise for ${requestHandlerName}\nsqlResults:\n`, sqlResults, `\n\ntpyeof transformColorData`, typeof transformColorData, `\n`);
 
       console.log(`\n\nProceed to re-arrange rawData retrieved from PostgreSQL:\n`);
 
-      /* *** raw Data Structure => rawArray[51]
-        rawArray[
-          {
-          user_id: Number,
-          image_record_id: 1,
-          image_url: VARCHAR(255),
-          metadata: JSON,
-          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
-          raw_hex: VARCHAR(7), // image_record_id: 1
-          hex_value: VARCHAR(20), // image_record_id: 1
-          w3c_name: VARCHAR(50), // image_record_id: 1
-          w3c_hex: VARCHAR(7) // image_record_id: 1
-          },
-          {
-          user_id: Number,
-          image_record_id: 1,
-          image_url: VARCHAR(255),
-          metadata: JSON,
-          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
-          raw_hex: VARCHAR(7), // image_record_id: 1
-          hex_value: VARCHAR(20), // image_record_id: 1
-          w3c_name: VARCHAR(50), // image_record_id: 1
-          w3c_hex: VARCHAR(7) // image_record_id: 1
-          },
-          {
-          user_id: Number,
-          image_record_id: 2,
-          image_url: VARCHAR(255),
-          metadata: JSON{""},
-          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
-          raw_hex: VARCHAR(7), // image_record_id: 2
-          hex_value: VARCHAR(20), // image_record_id: 2
-          w3c_name: VARCHAR(50), // image_record_id: 2
-          w3c_hex: VARCHAR(7) // image_record_id: 2
-          },
-          {
-          user_id: Number,
-          image_record_id: 2,
-          image_url: VARCHAR(255),
-          metadata: JSON{""},
-          date_time: timestamp with time zone, // Unique field 2024-10-17 16:34:16.635 +0800
-          raw_hex: VARCHAR(7), // image_record_id: 2
-          hex_value: VARCHAR(20), // image_record_id: 2
-          w3c_name: VARCHAR(50), // image_record_id: 2
-          w3c_hex: VARCHAR(7) // image_record_id: 2
-          },
-        ]
-        
-        *** desiredDataStructure =>
-          colorRecordsPage[10] => 10 elements per page
-          Splitting each colorRecordsPage data based on UNIQUE date_time
-        colorRecordsPage[
-          {
-          // Only need 1 metadata => Based on UNIQUE date_time
-          metadata: JSON{"fileMetaDataHash"}, 
-          image_record_id: 1,
-          //Unqiue entry based on TIME 2024-10-17 16:34:16.635
-          date_time: timestamp with time zone, 
-          // => rax_hex[] based on image_record_id: 1
-          raw_hex: ["VARCHAR(7)", "VARCHAR(7)"], 
-          // => rax_hex[] based on image_record_id: 1
-          hex_value: ["VARCHAR(20)", "VARCHAR(20)"], 
-          // => rax_hex[] based on image_record_id: 1
-          w3c_name: ["VARCHAR(50)", "VARCHAR(50)"], 
-          // => rax_hex[] based on image_record_id: 1
-          w3c_hex: ["VARCHAR(7)", "VARCHAR(7"] 
-          },
-          {
-          // Only need 1 metadata => Based on UNIQUE date_time
-          metadata: JSON{"fileMetaDataHash"},
-          //Unqiue entry based on TIME 2024-10-17 16:34:16.635
-          date_time: timestamp with time zone, 
-          image_record_id: 2,
-          // => rax_hex[] based on image_record_id: 2
-          raw_hex: ["VARCHAR(7)", "VARCHAR(7)"], 
-          // => rax_hex[] based on image_record_id: 2
-          hex_value: ["VARCHAR(20)", "VARCHAR(20)"],
-          // => rax_hex[] based on image_record_id: 2 
-          w3c_name: ["VARCHAR(50)", "VARCHAR(50)"], 
-          // => rax_hex[] based on image_record_id: 2
-          w3c_hex: ["VARCHAR(7)", "VARCHAR(7"] 
-          },
-        ]
-      */
-      const transformData = (rawData) => {
-        // Step 1: Group by 'date_time' and 'image_record_id'
-        const groupedByDateTime = rawData.reduce((acc, cur) => {
-          const dateTime = cur.date_time;
-          const recordId = cur.image_record_id;
+      try {
+        // Detailed implementation => see backend/util/records-data-transformations/transformColorData.js
+        const transformedData = transformColorData(sqlResults);
 
-          if (!acc[dateTime]) {
-              acc[dateTime] = {};
-          }
-          if (!acc[dateTime][recordId]) {
-              acc[dateTime][recordId] = {
-                  metadata: cur.metadata,  // Assuming the first metadata encountered is used
-                  date_time: dateTime,
-                  image_record_id: recordId,
-                  raw_hex: [],
-                  hex_value: [],
-                  w3c_name: [],
-                  w3c_hex: []
-              };
-          }
+        const end = performance.now();
+        const duration = end - start;
 
-          // Append color data
-          acc[dateTime][recordId].raw_hex.push(cur.raw_hex);
-          acc[dateTime][recordId].hex_value.push(cur.hex_value);
-          acc[dateTime][recordId].w3c_name.push(cur.w3c_name);
-          acc[dateTime][recordId].w3c_hex.push(cur.w3c_hex);
+        console.log(`\n\nSucceeded in transforming userColorRecords retrieved from PostgreSQL\n`);
+        console.log(`\n\nPerformance for transforming Data Structure for\nExpress RequestHandler:\n${requestHandlerName}\nis:\n${duration}ms\n`);
 
-          return acc;
-        }, {});
-
-        // Step 2: Flatten the structure into an array
-        let result = [];
-        Object.keys(groupedByDateTime).forEach(dateTime => {
-            Object.values(groupedByDateTime[dateTime]).forEach(record => {
-                result.push(record);
-            });
+        return res.status(200).json({ 
+          success: true, 
+          status: { code: 200 }, 
+          message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => transformColorData is: ${duration}ms`,
+          colorData: transformedData
         });
-
-        // Step 3: Implement pagination (10 records per page)
-        const pages = [];
-        for (let i = 0; i < result.length; i += 10) {
-            pages.push(result.slice(i, i + 10));
-        }
-
-        return pages;
+      } catch (err) {
+        throw new Error (`\nError transforming userColorRecords: ${err}\n`);
       }
-
-      const transformedData = transformData(results);
-      // const finalData = JSON.stringify(transformedData, null, 2);
-      // console.log(`\n\nResponse to be sent to Frontend\nJSON.stringify(transformedData, null, 2):\n`);
-      // console.log(finalData);
-      const end = performance.now();
-      const duration = end - start;
-      console.log(`\n\nPerformance for transforming Data Structure for\nExpress RequestHandler:\n${requestHandlerName}\nis:\n${duration}ms\n`);
-
-      return res.status(200).json({ 
-        success: true, 
-        status: { code: 200 }, 
-        message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms`,
-        colorData: transformedData
-      });
     })
     .catch((err) => {
       console.error(`\nError in Express RequestHandler:\n${requestHandlerName}\n\nError: ${err}\n`);
