@@ -15,7 +15,7 @@ const rootDir = require('./util/path');
 require('dotenv').config({ path: `${rootDir}/.env`});
 
 const printDateTime = require('./util/printDateTime').printDateTime;
-const saveBase64Image = require('./util/saveBase64Image').saveBase64Image;
+const saveBase64Image = require('./util/saveBase64Image');
 
 const transformColorData = require('./util/records-data-transformations/transformColorData');
 
@@ -100,7 +100,7 @@ app.post('/celebrityimage', (req, res) => { image.handleCelebrityApi(req, res, f
 app.post('/colorimage', (req, res) => { image.handleColorApi(req, res, fetch) } )
 app.post('/ageimage', (req, res) => { image.handleAgeApi(req, res, fetch) } )
 
-app.post('/save-user-color', (req, res) => {records.saveUserColor(req, res, db) } )
+app.post('/save-user-color', (req, res) => {records.saveUserColor(req, res, db, saveBase64Image) } )
 app.post('/get-user-color', (req, res) => { records.getUserColor(req, res, db, transformColorData) })
 
 // app.listen(port, fn)

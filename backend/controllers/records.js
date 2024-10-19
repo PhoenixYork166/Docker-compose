@@ -5,17 +5,11 @@ require('dotenv').config({ path: `${rootDir}/controllers/.env`});
 const printDateTime = require('../util/printDateTime').printDateTime;
 const { performance } = require('perf_hooks');
 
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 
 // Express Request Handler POST route http://localhost:3000/save-user-color
-const saveUserColor = (req, res, db) => {
-    printDateTime();
-
-    const start = performance.now();
-    const requestHandlerName = `rootDir/controllers/image.js\nsaveColor()`;
-  
-    // From Frontend React
+/* From Frontend React
     // table `image_record`
     // const imageRecord = {
     //   userId: user.id,
@@ -51,9 +45,7 @@ const saveUserColor = (req, res, db) => {
     // w3c_hex VARCHAR(7) NOT NULL,
     // w3c_name VARCHAR(50) NOT NULL,
     // FOREIGN KEY (image_id) REFERENCES image_record(id)
-  
-    const { userId, imageRecord, imageDetails } = req.body;
-  
+    
     console.log(`\nExpress RequestHandler:\n${requestHandlerName}\n`);
     console.log(`\nreq.body.imageRecord.metadata:\n`, imageRecord.metadata, `\n`);
     console.log(`\ntypeof req.body.imageRecord.metadata:\n`, typeof imageRecord.metadata, `\n`);
@@ -63,16 +55,17 @@ const saveUserColor = (req, res, db) => {
     console.log(`\ntypeof req.body.imageRecord.imageUrl:\n`, typeof imageRecord.imageUrl, `\n`);
 
     // console.log(`\nreq.body.imageRecord.metadata.length:\n`, imageRecord.metadata.length, `\n`);
-  
-    /* Create a PostgreSQL transaction to perform:
-    1. INSERT imageRecord received from Frontend React to table `imageRecord`
+*/
+
+/* Create a PostgreSQL transaction to perform:
+1. INSERT imageRecord received from Frontend React to table `imageRecord`
     {
        userId: 1,
        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Brad_Pitt_2019_by_Glenn_Francis.jpg/399px-Brad_Pitt_2019_by_Glenn_Francis.jpg',
        metadata: {},
        dateTime: '2024-10-14T11:10:31.234Z'
     }
-    2. INSERT imageDetails received from Frontend React to table `imageDetails`
+2. INSERT imageDetails received from Frontend React to table `imageDetails`
     [
     {
       raw_hex: '#bcbbb2',
@@ -87,10 +80,10 @@ const saveUserColor = (req, res, db) => {
       w3c_name: 'Black'
     }
     ] 
-    */
+*/
     
-    /* Knex.js PostgreSQL INSERT */
-    /* Batch1
+/* Knex.js PostgreSQL INSERT
+Batch1
     db
     .select('*')
     .from('image_record')
@@ -100,9 +93,7 @@ const saveUserColor = (req, res, db) => {
     .catch((err) => {
       console.error(`\nError fetching data: `, err, `\n`);
     })
-    */
-  
-    /* Batch2
+Batch2
     db.insert({
       user_id: parseInt(imageRecord.userId, 10),
       image_url: imageRecord.imageUrl,
@@ -121,90 +112,84 @@ const saveUserColor = (req, res, db) => {
   
       res.status(500).json({ status: { code: 500 }, success: false, message: `Internal Server Error`, error: err.toString()});
     })
-    */
-    
-    /* Knex.js PostgreSQL transaction */
-    db.transaction((trx) => {
-      const date_time = new Date().toISOString();
+*/
+const saveUserColor = (req, res, db, saveBase64Image) => {
+  printDateTime();
   
+  const { userId, imageRecord, imageDetails } = req.body;
+  const date_time = new Date().toISOString();
+  const userIdInt = parseInt(userId, 10);
+  const base64Metadata = JSON.stringify(imageRecord.metadata);
+
+  const start = performance.now();
+  const requestHandlerName = `rootDir/controllers/image.js\nsaveColor()`;
+  console.log(`\nStart processing ${requestHandlerName}\n`);
+
+  db.transaction((trx) => {
       trx.insert({
-        // user_id: parseInt(imageRecord.userId, 10),
-        user_id: parseInt(userId, 10),
-        image_url: imageRecord.imageUrl,
-        metadata: JSON.stringify(imageRecord.metadata),
-        date_time: new Date().toISOString()
+          user_id: userIdInt,
+          image_url: imageRecord.imageUrl,
+          metadata: base64Metadata,
+          date_time: date_time
       })
       .into('image_record')
-      .returning('id') // To store `image_record`.`id` into `image_details`.`image_id` too
+      .returning('id')
       .then((image_ids) => {
-        const image_id = image_ids[0].id; // Assuming 1st image_id is needed
-        console.log(`\nAfter db.transaction((trx) => {\n\ttrx.insert({\n\t\tuser_id: ${imageRecord.userId},\n\t\timage_url: '${imageRecord.imageUrl}',\n\t\tmetadata: 'someMetadata'\n\t\tdate_time: '${date_time}'\n\t})\n\t.into('image_record')\n\t.returning('id')\n\n`, image_id, `\n`);
-  
-        // Mapping out each imageDetails
-        const detailInserts = imageDetails.map((eachImageDetail) => {
-          return {
-            image_id: image_id,
-            raw_hex: eachImageDetail.raw_hex,
-            hex_value: eachImageDetail.value,
-            w3c_hex: eachImageDetail.w3c_hex,
-            w3c_name: eachImageDetail.w3c_name
-          };
-        });
-  
-        // Insert all mapped records to table `image_details`
-        return trx('image_details').insert(detailInserts);
+          const image_id = image_ids[0].id;
+          console.log(`\nAfter db.transaction insert image_id: ${image_id}\n`);
+
+          const detailInserts = imageDetails.map((eachImageDetail) => ({
+              image_id: image_id,
+              raw_hex: eachImageDetail.raw_hex,
+              hex_value: eachImageDetail.value,
+              w3c_hex: eachImageDetail.w3c_hex,
+              w3c_name: eachImageDetail.w3c_name
+          }));
+
+          return trx('image_details').insert(detailInserts);
       })
-      .then(trx.commit) // no error => commit transaction
-      // in case registration failed => rollback both 'login' && 'users' SQL transactions
-      .catch(trx.rollback); // Rollback transaction in case of any error during the transaction
-
-      // Promise chaining imageRecord.metadata for further Node.js fs process
-      return imageRecord.metadata;
-    })
-    .then((metadata) => {
-      console.log(`\n\nTransaction for Express RequestHandler:\n${requestHandlerName} completed!\n`);
-      console.log(`\n\nProceed to store metadata 'base64' to Node server locally...\n`);
-      
-      // Save .jpg image input by users locally to Node.js server
-      // saveBase64Image(imageRecord.metada, imageRecord.userId.toString());
-      console.log(`\nimageRecord.metadata:`, imageRecord.metadata, `\n`);
-
-      const date = new Date().toISOString().replace(/:/g, '-');  // Format date for filename
-      const base64Data = imageRecord.metadata;
-
-      const filename = `user_id_${userId}-${date}.jpg`;
-      // const filepath = path.join(__dirname, 'user_images', filename);
-      const filepath = path.join(rootDir, 'user_images', filename);
-    
-      // Convert base64 to raw binary data held in a string
-      const base64Image = base64Data.split(';base64,').pop(); // Strip header if present
-  
-      fs.writeFile(filepath, base64Image, { encoding: 'base64' }, (err) => {
-        if (err) {
-            console.error('Failed to write image file:', err);
-        } else {
-            console.log('Image file saved:', filepath);
-        }
+      .then(() => {
+          // Committing the transaction only when all inserts are successful
+          console.log('Transaction commit');
+          trx.commit();
+      })
+      .then(() => {
+          console.log('Proceeding to save base64 image.');
+          return saveBase64Image(base64Metadata, userIdInt);
+      })
+      .then((saveBase64Results) => {
+          const end = performance.now();
+          const duration = end - start;
+          console.log(`Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms\n`);
+          res.status(200).json({
+              success: true,
+              status: { code: 200 },
+              message: `Transaction completed successfully!`,
+              performance: `Duration: ${duration}ms`
+          });
+      })
+      .catch((err) => {
+          console.error(`Error in transaction or saving image:\n`, err);
+          trx.rollback();
+          res.status(500).json({
+              success: false,
+              status: { code: 500 },
+              message: `Failed during transaction or image saving`,
+              error: err.toString()
+          });
       });
-
-      const end = performance.now();
-      const duration = end - start;
-
-      console.log(`\nPerformance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms\n`);
-
-      return res.status(200).json({ 
-        success: true, 
-        status: { code: 200 }, 
-        message: `Transaction for Express RequestHandler: ${requestHandlerName} completed!`, performance: `Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms` });
-    })
-    .catch((err) => {
-      console.error(`\nError for Express RequestHandler:\n${requestHandlerName}\nfailed...\n`, `Error:\n`, err, `\n`);
-  
-      return res.status(500).json({ 
-        success: false, status: { code: 500 }, message: `Internal Server Error`, error: err.toString()
+  })
+  .catch((err) => {
+      console.error(`Transaction failed to begin:\n`, err);
+      res.status(500).json({
+          success: false,
+          status: { code: 500 },
+          message: `Transaction failed to start`,
+          error: err.toString()
       });
-    });
-}
+  });
+};
+
 
 /* From PostgreSQL => Replace all 1 to userId */
     // SELECT 
