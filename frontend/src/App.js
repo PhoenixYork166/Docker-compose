@@ -194,7 +194,10 @@ class App extends Component {
       face_hidden: true,
       color_hidden: true,
       age_hidden: true,
-      responseStatusCode: Number('')
+      responseStatusCode: Number(''),
+      userCelebrityRecords: null,
+      userColorRecords: null, // Retrieving User's Color Records from Postgres
+      userAgeRecords: null
     })
   };
 

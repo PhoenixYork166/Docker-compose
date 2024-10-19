@@ -87,23 +87,23 @@ const transformColorData = (rawData) => {
   const groupedByDateTime = rawData.reduce((acc, cur) => {
   const dateTime = cur.date_time;
   const recordId = cur.image_record_id;
-      
+
   if (!acc[dateTime]) {
-  acc[dateTime] = {};
+    acc[dateTime] = {};
   }
 
   if (!acc[dateTime][recordId]) {
-  acc[dateTime][recordId] = {
-  metadata: cur.metadata,  // Assuming the first metadata encountered is used
-  date_time: dateTime,
-  image_record_id: recordId,
-  raw_hex: [],
-  hex_value: [],
-  w3c_name: [],
-  w3c_hex: []
-  };
-  }
-      
+    acc[dateTime][recordId] = {
+    metadata: cur.metadata, // Assuming the first metadata encountered is used
+    date_time: dateTime,
+    image_record_id: recordId,
+    raw_hex: [],
+    hex_value: [],
+    w3c_name: [],
+    w3c_hex: []
+    };
+  } 
+
   // Append color data
   acc[dateTime][recordId].raw_hex.push(cur.raw_hex);
   acc[dateTime][recordId].hex_value.push(cur.hex_value);
@@ -112,22 +112,23 @@ const transformColorData = (rawData) => {
 
   return acc;
   }, {});
-    
+
   // Step 2: Flatten the structure into an array
   let result = [];
+
   Object.keys(groupedByDateTime).forEach(dateTime => {
   Object.values(groupedByDateTime[dateTime]).forEach(record => {
-    result.push(record);
-    });
+  result.push(record);
   });
-    
+  });
+
   // Step 3: Implement pagination (10 records per page)
   const pages = [];
 
   for (let i = 0; i < result.length; i += 10) {
-    pages.push(result.slice(i, i + 10));
+  pages.push(result.slice(i, i + 10));
   }
-    
+
   return pages;
 }
 

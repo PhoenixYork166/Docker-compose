@@ -43,7 +43,7 @@ const saveBase64Image = (base64Data, userId) => {
       // Convert base64 to raw binary data held in a string
       const base64Image = base64Data.split(';base64,').pop(); // Strip header if present
     
-      fs.writeFile(filepath, base64Image, { encoding: 'base64' }, (err) => {
+      return fs.writeFile(filepath, base64Image, { encoding: 'base64' }, (err) => {
         if (err) {
           console.error('\nFailed to write image file:', err, `\n`);
         } else {

@@ -5,9 +5,6 @@ require('dotenv').config({ path: `${rootDir}/controllers/.env`});
 const printDateTime = require('../util/printDateTime').printDateTime;
 const { performance } = require('perf_hooks');
 
-// const fs = require('fs');
-// const path = require('path');
-
 // Express Request Handler POST route http://localhost:3000/save-user-color
 /* From Frontend React
     // table `image_record`
@@ -82,7 +79,7 @@ const { performance } = require('perf_hooks');
     ] 
 */
     
-/* Knex.js PostgreSQL INSERT
+/* Knex.js PostgreSQL transaction INSERT
 Batch1
     db
     .select('*')
@@ -117,6 +114,7 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
   printDateTime();
   
   const { userId, imageRecord, imageDetails } = req.body;
+  // Type safety without using TypeScript
   const date_time = new Date().toISOString();
   const userIdInt = parseInt(userId, 10);
   const base64Metadata = JSON.stringify(imageRecord.metadata);
@@ -126,99 +124,103 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
   console.log(`\nStart processing ${requestHandlerName}\n`);
 
   db.transaction((trx) => {
-      trx.insert({
-          user_id: userIdInt,
-          image_url: imageRecord.imageUrl,
-          metadata: base64Metadata,
-          date_time: date_time
-      })
-      .into('image_record')
-      .returning('id')
-      .then((image_ids) => {
-          const image_id = image_ids[0].id;
-          console.log(`\nAfter db.transaction insert image_id: ${image_id}\n`);
+    trx.insert({
+      user_id: userIdInt,
+      image_url: imageRecord.imageUrl,
+      metadata: base64Metadata,
+      date_time: date_time
+    })
+    .into('image_record')
+    .returning('id')
+    .then((image_ids) => {
+      const image_id = image_ids[0].id;
+      console.log(`\nAfter db.transaction insert image_id: ${image_id}\n`);
 
-          const detailInserts = imageDetails.map((eachImageDetail) => ({
-              image_id: image_id,
-              raw_hex: eachImageDetail.raw_hex,
-              hex_value: eachImageDetail.value,
-              w3c_hex: eachImageDetail.w3c_hex,
-              w3c_name: eachImageDetail.w3c_name
-          }));
+      const detailInserts = imageDetails.map((eachImageDetail) => ({
+        image_id: image_id,
+        raw_hex: eachImageDetail.raw_hex,
+        hex_value: eachImageDetail.value,
+        w3c_hex: eachImageDetail.w3c_hex,
+        w3c_name: eachImageDetail.w3c_name
+      }));
 
-          return trx('image_details').insert(detailInserts);
+      return trx('image_details').insert(detailInserts);
       })
       .then(() => {
-          // Committing the transaction only when all inserts are successful
-          console.log('Transaction commit');
-          trx.commit();
+        // Committing the transaction only when all inserts are successful
+        console.log('Transaction commit');
+        trx.commit();
       })
       .then(() => {
-          console.log('Proceeding to save base64 image.');
-          return saveBase64Image(base64Metadata, userIdInt);
+        console.log('Proceeding to save base64 image.');
+        // Allow Promise chaining by return
+        return saveBase64Image(base64Metadata, userIdInt);
       })
       .then((saveBase64Results) => {
-          const end = performance.now();
-          const duration = end - start;
-          console.log(`Performance for db.transaction(trx) => saveBase64Image locally to Node.js server is: ${duration}ms\n`);
-          res.status(200).json({
-              success: true,
-              status: { code: 200 },
-              message: `Transaction completed successfully!`,
-              performance: `Duration: ${duration}ms`
-          });
+        const end = performance.now();
+        const duration = end - start;
+        console.log(`Performance for saveBase64Image locally to Node.js server is: ${duration}ms\n`);
+        
+        res.status(200).json({
+          success: true,
+          status: { code: 200 },
+          message: `Transaction completed successfully!`,
+          performance: `Duration: ${duration}ms`
+        });
       })
       .catch((err) => {
-          console.error(`Error in transaction or saving image:\n`, err);
-          trx.rollback();
-          res.status(500).json({
-              success: false,
-              status: { code: 500 },
-              message: `Failed during transaction or image saving`,
-              error: err.toString()
-          });
+        console.error(`Error in transaction or saving image:\n`, err);
+        trx.rollback();
+        res.status(500).json({
+          success: false,
+          status: { code: 500 },
+          message: `Failed during transaction or image saving`,
+          error: err.toString()
+        });
       });
   })
   .catch((err) => {
-      console.error(`Transaction failed to begin:\n`, err);
-      res.status(500).json({
-          success: false,
-          status: { code: 500 },
-          message: `Transaction failed to start`,
-          error: err.toString()
-      });
+    console.error(`Transaction failed to begin:\n`, err);
+    res.status(500).json({
+      success: false,
+      status: { code: 500 },
+      message: `Transaction failed to start`,
+      error: err.toString()
+    });
   });
 };
 
 
 /* From PostgreSQL => Replace all 1 to userId */
-    // SELECT 
-    //   u.id AS user_id, 
-    //   ir.id AS image_record_id, 
-    //   ir.image_url, 
-    //   ir.metadata, 
-    //   ir.date_time, 
-    //   id.raw_hex, 
-    //   id.hex_value, 
-    //   id.w3c_hex, 
-    //   id.w3c_name
-    // FROM 
-    //   users u
-    // JOIN 
-    //   image_record ir ON u.id = ir.user_id
-    // JOIN 
-    //   image_details id ON ir.id = id.image_id
-    // WHERE 
-    //   u.id = 1
-    //   AND ir.id IN (
-    //       SELECT ir.id
-    //       FROM image_record ir
-    //       WHERE ir.user_id = 1
-    //       ORDER BY ir.date_time DESC
-    //       LIMIT 10
-    //   )
-    // ORDER BY 
-    //   ir.date_time DESC;
+/* 
+SELECT 
+  u.id AS user_id, 
+  ir.id AS image_record_id, 
+  ir.image_url, 
+  ir.metadata, 
+  ir.date_time, 
+  id.raw_hex, 
+  id.hex_value, 
+  id.w3c_hex, 
+  id.w3c_name
+FROM 
+  users u
+JOIN 
+  image_record ir ON u.id = ir.user_id
+JOIN 
+  image_details id ON ir.id = id.image_id
+WHERE 
+  u.id = 1
+  AND ir.id IN (
+    SELECT ir.id
+    FROM image_record ir
+    WHERE ir.user_id = 1
+    ORDER BY ir.date_time DESC
+    LIMIT 10
+  )
+ORDER BY 
+  ir.date_time DESC;
+*/
 const getUserColor = (req, res, db, transformColorData) => {
     printDateTime();
     const start = performance.now();
@@ -226,11 +228,17 @@ const getUserColor = (req, res, db, transformColorData) => {
     const requestHandlerName = `rootDir/controllers/image.js\ngetUserColor()`;
     
     const { userId } = req.body;
+    // console.log(`\ntypeof userId:\n`, typeof userId, `\n`);
+
+    // if (typeof userId !== String) {
+    //   console.error(`\n${requestHandlerName} typeof userId!== String`);
+    //   console.log(`\n${requestHandlerName} typeof userId: `, typeof userId, `\n`);
+    //   return;
+    // }
 
     console.log(`\nExpress RequestHandlerName: \n${requestHandlerName}\n`);
     console.log(`\nreq.body.userId:\n`, userId, `\n`);
   
-    
     /* Knex.js PostgreSQL */
     db.select(
       'u.id as user_id',
@@ -268,14 +276,14 @@ const getUserColor = (req, res, db, transformColorData) => {
 
       return { sqlResults, transformColorData };
     })
-    .then(({ sqlResults, transformColorData }) => {
+    .then(async ({ sqlResults, transformColorData }) => {
       console.log(`\n\nLast Promise for ${requestHandlerName}\nsqlResults:\n`, sqlResults, `\n\ntpyeof transformColorData`, typeof transformColorData, `\n`);
 
-      console.log(`\n\nProceed to re-arrange rawData retrieved from PostgreSQL:\n`);
-
+      console.log(`\n\nProceed to re-arrange rawData retrieved from PostgreSQL:\n`);       
+      
       try {
         // Detailed implementation => see backend/util/records-data-transformations/transformColorData.js
-        const transformedData = transformColorData(sqlResults);
+        const transformedData = await transformColorData(sqlResults);
 
         const end = performance.now();
         const duration = end - start;
