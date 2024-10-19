@@ -124,6 +124,7 @@ const transformColorData = (rawData) => {
 
   // Step 3: Implement pagination (10 records per page)
   const pages = [];
+  // let pages;
 
   for (let i = 0; i < result.length; i += 10) {
   pages.push(result.slice(i, i + 10));

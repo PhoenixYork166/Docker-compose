@@ -17,7 +17,6 @@ const ColorRecords = ( {
     userColorRecords
 } ) => {
     
-
     return (
         <React.Fragment>
             {/* <CheckRecordsPanel /> */}

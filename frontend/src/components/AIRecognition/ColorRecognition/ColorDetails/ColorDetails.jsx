@@ -138,7 +138,7 @@ const ColorDetails = ({ user, input, color_props }) => {
           })}
         </div>
       </React.Fragment>
-    )
+  )
 }
 
 
