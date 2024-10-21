@@ -97,18 +97,18 @@ class App extends Component {
       localStorage.setItem('lastRoute', this.state.route);
     }
 
-    // // Check if records have been updated & store them in localStorage
-    // if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
-    //   localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
-    // }
-    // // Check if records have been updated & store them in localStorage
-    // if (this.state.userColorRecords !== prevState.userColorRecords) {
-    //   localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
-    // }
-    // // Check if records have been updated & store them in localStorage
-    // if (this.state.userAgeRecords !== prevState.userAgeRecords) {
-    //   localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
-    // }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
+      localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
+    }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userColorRecords !== prevState.userColorRecords) {
+      localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
+    }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userAgeRecords !== prevState.userAgeRecords) {
+      localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
+    }
   }
   
   componentWillUnmount() {
@@ -388,7 +388,7 @@ class App extends Component {
   // Retrieve User's Color Records from Node.js => PostgreSQL
   onColorRecordsButton = () => {
     // Reset all state variables to allow proper rendering of side-effects
-    this.resetState();
+    // this.resetState();
 
     // Change Route to 'colorRecords' => Checkout App.js onRouteChange()
     this.onRouteChange('colorRecords');
