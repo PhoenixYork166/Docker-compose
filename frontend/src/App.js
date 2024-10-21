@@ -54,13 +54,15 @@ class App extends Component {
       responseStatusCode: Number(''),
       route: defaultRoute,
       isSignedIn: userData ? true : false,
-      // user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
-      user:  userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
+      user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
       // Retrieving User's records from PostgreSQL
 
-      // userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
-      // userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
-      // userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null, // localStorage userAgeRecords{}
+      // user: userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
+      // Retrieving User's records from PostgreSQL
+
+      userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
+      userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
+      userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null, // localStorage userAgeRecords{}
     };
     // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
     this.handleResize = this.handleResize.bind(this);
@@ -272,12 +274,10 @@ class App extends Component {
       });
   }
 
-  /*
-  For <SaveColorBtn /> in <ColorRecognition />
-  Arrow function to send this.state.state_raw_hex_array
-  to server-side right after setting state for state_raw_hex_array
-  to avoid delay in server-side
-  */
+  // For <SaveColorBtn /> in <ColorRecognition />
+  // Arrow function to send this.state.state_raw_hex_array
+  // to server-side right after setting state for state_raw_hex_array
+  // to avoid delay in server-side
   loadRawHex = () => {
     const devFetchRawHexUrl = 'http://localhost:3001/image';
     const prodFetchRawHexUrl = 'https://ai-recognition-backend.onrender.com/image';
