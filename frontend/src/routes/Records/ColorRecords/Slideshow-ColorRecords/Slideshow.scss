@@ -288,6 +288,10 @@
     justify-content: center;
     height: 20rem;
 
+    &--h2 {
+        color: rgba($font, 1);
+    }
+
     &--p {
         //font-size: 1.6rem;
         cursor: pointer;
