@@ -275,7 +275,7 @@
     &--text {
         font-size: 1.6rem;
         font-weight: 600;
-        margin: 4rem 0 4rem 0;
+        // margin: 4rem 0 4rem 0;
         padding: 0 2rem 0 rem;
         white-space: normal;
         color: rgba($footer, 1);
@@ -288,11 +288,15 @@
     justify-content: center;
     height: 20rem;
 
+    &--heading {
+        color: rgba($font, 1);
+    }
+
     &--p {
         //font-size: 1.6rem;
         cursor: pointer;
         font-weight: 600;
-        margin: 4rem 0 4rem 0;
+        // margin: 4rem 0 4rem 0;
         padding: 0 2rem 0 rem;
         white-space: normal;
         color: rgba($font, 1);

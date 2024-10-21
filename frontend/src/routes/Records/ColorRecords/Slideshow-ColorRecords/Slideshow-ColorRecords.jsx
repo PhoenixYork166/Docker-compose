@@ -84,14 +84,13 @@ const SlideshowColorRecords = ( {
             }}
         >
             <React.Fragment>
-
                 <React.Fragment>
                 <div 
                 className="slideshow__inner" 
                 // style={{ transform: `translateX(-${activeIndex * 100}%)` }}
                 >
                     
-                    <h2>Date Time of Color Record</h2>
+                    <h3 className="slideshowText--heading">Date Time of Color Record</h3>
                     <p className="slideshowText--p">{userColorRecordsArray[activeIndex].date_time}</p>
                     <br/>
                     <p>Test Slideshow details</p>
