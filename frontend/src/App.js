@@ -56,6 +56,10 @@ class App extends Component {
       isSignedIn: userData ? true : false,
       user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
       // Retrieving User's records from PostgreSQL
+
+      // user: userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
+      // Retrieving User's records from PostgreSQL
+
       userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
       userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
       userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null, // localStorage userAgeRecords{}
@@ -92,18 +96,19 @@ class App extends Component {
     if (this.state.route !== prevState.route) {
       localStorage.setItem('lastRoute', this.state.route);
     }
-    // Check if records have been updated & store them in localStorage
-    if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
-      localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
-    }
-    // Check if records have been updated & store them in localStorage
-    if (this.state.userColorRecords !== prevState.userColorRecords) {
-      localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
-    }
-    // Check if records have been updated & store them in localStorage
-    if (this.state.userAgeRecords !== prevState.userAgeRecords) {
-      localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
-    }
+
+    // // Check if records have been updated & store them in localStorage
+    // if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
+    //   localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
+    // }
+    // // Check if records have been updated & store them in localStorage
+    // if (this.state.userColorRecords !== prevState.userColorRecords) {
+    //   localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
+    // }
+    // // Check if records have been updated & store them in localStorage
+    // if (this.state.userAgeRecords !== prevState.userAgeRecords) {
+    //   localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
+    // }
   }
   
   componentWillUnmount() {
