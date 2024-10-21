@@ -34,6 +34,11 @@ class App extends Component {
     // const defaultRoute = userData ? 'home' : 'signin';
     const defaultRoute = userData? (lastRoute || 'home') : 'signin';
 
+    // Load User's records from localStorage, or set to null if not yet stored
+    const userColorRecords = localStorage.getItem('userColorRecords');
+    const userCelebrityRecords = localStorage.getItem('userCelebrityRecords');
+    const userAgeRecords = localStorage.getItem('userAgeRecords');
+
     this.state = {
       input: '', // this.state.input => Users' input imageUrl => Can be used for onClick events
       imageUrl: '', // this.state.imageUrl should NOT be used for onClick => React circular references
@@ -50,9 +55,10 @@ class App extends Component {
       route: defaultRoute,
       isSignedIn: userData ? true : false,
       user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
-      userCelebrityRecords: null,
-      userColorRecords: null, // Retrieving User's Color Records from Postgres
-      userAgeRecords: null
+      // Retrieving User's records from PostgreSQL
+      userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
+      userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
+      userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null, // localStorage userAgeRecords{}
     };
     // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
     this.handleResize = this.handleResize.bind(this);
@@ -62,11 +68,6 @@ class App extends Component {
 
     // loadUserFromLocalStorage(this.setState.bind(this));
     this.inactivityTimer = null;
-  }
-
-  // Keep tracking window.innerWidth px
-  handleResize() {
-    this.setState({ dimensions: { width: window.innerWidth } });
   }
 
   componentDidMount() {
@@ -80,7 +81,8 @@ class App extends Component {
     }, 300000); // Reset this.state.dimensions{} in every 5 minutes
   }
 
-  // Keep tracking for user
+  /* Keep tracking for user state variables */
+  // useEffect() hook combining componentDidUpdate & componentWillUnmount
   // Validate users whenever there's a change
   componentDidUpdate(prevProps, prevState) {
     if (this.state.user !== prevState.user) { 
@@ -90,14 +92,30 @@ class App extends Component {
     if (this.state.route !== prevState.route) {
       localStorage.setItem('lastRoute', this.state.route);
     }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
+      localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
+    }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userColorRecords !== prevState.userColorRecords) {
+      localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
+    }
+    // Check if records have been updated & store them in localStorage
+    if (this.state.userAgeRecords !== prevState.userAgeRecords) {
+      localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
+    }
   }
-
-  // useEffect() hook
+  
   componentWillUnmount() {
     clearTimeout(this.inactivityTimer);
     window.removeEventListener('resize', this.handleResize);
     // this.state.dimensions => Clear the interval on unmount to avoid memory leak on browser 
     clearInterval(this.dimensionsCleanupTimer);
+  }
+
+  // Keep tracking window.innerWidth px
+  handleResize() {
+    this.setState({ dimensions: { width: window.innerWidth } });
   }
   
   resetUser = () => {
@@ -201,6 +219,20 @@ class App extends Component {
     })
   };
 
+  // reset all User's color & celebrity & age detection records in Frontend
+  resetUserRecords = () => {
+    this.setState({
+      userColorRecords: [],
+      userCelebrityRecords: [],
+      userAgeRecords: []
+    });
+
+    // Also remove these items from localStorage
+    localStorage.removeItem('userColorRecords');
+    localStorage.removeItem('userCelebrityRecords');
+    localStorage.removeItem('userAgeRecords');
+  }
+
   // Everytime any of the Detection Models is activated
   // update this.state.user.entries by 1 through
   // sending data to server-side
@@ -279,6 +311,9 @@ class App extends Component {
   onHomeButton = () => {
     // Reset all state variables to allow proper rendering from Detection Models
     this.resetState();
+
+    // Reset User's all color & celebrity & age records in Frontend
+    this.resetUserRecords();
 
     // Change Route to 'home' => Checkout App.js onRouteChange()
     this.onRouteChange('home');
@@ -589,7 +624,7 @@ class App extends Component {
     console.log('\nage_props\n', age_props);
     console.log('\ndateTime:\n', dateTime);
 
-    // Tracking all state variables in render() {...}
+    // // Tracking all state variables in render() {...}
     console.log(`\nthis.state.user: \n`, user, `\n`);
     // console.log(`\nthis.state.user => JSON.parse(user):\n`, JSON.parse(user), `\n`);
     console.log(`\ndefaultRoute:\n${this.defaultRoute}\n`);
@@ -608,7 +643,6 @@ class App extends Component {
     console.log('\nthis.state.age_hidden', age_hidden);
     console.log('\nthis.state.responseStatusCode:\n', responseStatusCode);
     console.log(`\nthis.state.dimensions.width:\n`, dimensions.width, `px\n`);
-    console.log(`\nthis.state.userColorRecords[]: `, this.state.userColorRecords, `\n`);
     
     // Enhance React Scalability for allowing to add more React routes without React Router DOM
     const routeComponents = {

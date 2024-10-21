@@ -8,6 +8,7 @@ import ColorDetails from './ColorDetails/ColorDetails';
 import blobToBase64 from '../../../util/blobToBase64';
 
 // Parent component
+// src/components/Home/Home.jsx
 const ColorRecognition = ( { 
     user,
     name, 
@@ -15,6 +16,7 @@ const ColorRecognition = ( {
     imageUrl, 
     color_props, 
     color_hidden,
+    onRouteChange
 } ) => {
     const [imageBlob, setImageBlob] = useState(''); // Blob { size: Number, type: String, userId: undefined }
     const [resData, setResData] = useState('');
@@ -26,26 +28,28 @@ const ColorRecognition = ( {
 
     // Keep monitoring Blob fetched from axios.get(imageUrl, { responseType: 'blob' })
     useEffect(() => {
-        const fetchImage = async() => {
-          const fetchUrl = input;
-    
-          try {
-            const response = await axios.get(fetchUrl, { responseType: 'blob' });
-            console.log(`\nReceived metadata blob response:`, response, `\n`);
-    
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              // useState() to store this.state.imageBlob: response.data
-              setImageBlob(reader.result);
-            };
-            reader.readAsDataURL(response.data);
-            setResData(response.data);
-            console.log(`\nresponse.data:\n$`, response.data, `\n`);
-          } catch (err) {
-            console.error(`\nFailed to get 'blob' via axios.get(${fetchUrl}\nError: ${err}\n`);
-          }
-        };
-        fetchImage();
+        if (input !== '') {
+          const fetchImage = async() => {
+            const fetchUrl = input;
+      
+            try {
+              const response = await axios.get(fetchUrl, { responseType: 'blob' });
+              console.log(`\nReceived metadata blob response:`, response, `\n`);
+      
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                // useState() to store this.state.imageBlob: response.data
+                setImageBlob(reader.result);
+              };
+              reader.readAsDataURL(response.data);
+              setResData(response.data);
+              console.log(`\nresponse.data:\n$`, response.data, `\n`);
+            } catch (err) {
+              console.error(`\nFailed to get 'blob' via axios.get(${fetchUrl}\nError: ${err}\n`);
+            }
+          };
+          fetchImage();
+        }
     }, [input]); // State management array[] to listen on imageUrl
 
     // Save to Account button to save Color details into PostgreSQL as blob metadata
@@ -63,6 +67,11 @@ const ColorRecognition = ( {
 
         // Assuming resData is the Blob
         const base64Metadata = await blobToBase64(resData);
+
+        if (!base64Metadata) {
+          // If Blob cannot be transformed in base64Metadata => route to 'home' page
+          onRouteChange('home');
+        }
     
         const imageRecord = {
         imageUrl: input,

@@ -83,6 +83,7 @@ const Home = ( {
                 imageUrl={imageUrl}
                 celebrityName={celebrityName}
                 face_hidden={face_hidden}
+                onRouteChange={onRouteChange}
             />
             <ColorRecognition
                 user={user}
@@ -92,6 +93,7 @@ const Home = ( {
                 color_hidden={color_hidden}
                 name={name}
                 onSaveColorButton={onSaveColorButton}
+                onRouteChange={onRouteChange}
             />
             <AgeRecognition
                 user={user}
@@ -99,6 +101,7 @@ const Home = ( {
                 input={input}
                 imageUrl={imageUrl}
                 age_hidden={age_hidden}
+                onRouteChange={onRouteChange}
             />
         </React.Fragment>
     )

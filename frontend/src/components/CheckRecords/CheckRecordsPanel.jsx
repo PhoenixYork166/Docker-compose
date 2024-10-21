@@ -113,7 +113,6 @@ const CheckRecordsPanel = ({
           onColorRecordsButton={onColorRecordsButton}
           // 4. 'Age records' page
           userAgeRecords={userAgeRecords}
-
           resetState={resetState}
         />
       </div>
@@ -169,10 +168,19 @@ const CheckRecordsPanel = ({
         <div className={`${classes.nav}`}>
           <ul className={`${classes.ls} ${classes.frosted}`}>
             <CheckRecordsLi
+              user={user}
               fontGt={fontGt}
               fontLt={fontLt}
               dimensions={dimensions}
-              user={user}
+              // 1. 'Home' page
+              onHomeButton={onHomeButton}
+              // 2. 'Celebrity records' page
+              onCelebrityRecordsButton={onCelebrityRecordsButton}
+              // 3. 'Color records' page
+              userColorRecords={userColorRecords}
+              onColorRecordsButton={onColorRecordsButton}
+              // 4. 'Age records' page
+              userAgeRecords={userAgeRecords}
               resetState={resetState}
             />
           </ul>

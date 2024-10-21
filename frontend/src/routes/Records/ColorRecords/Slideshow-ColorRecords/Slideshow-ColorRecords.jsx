@@ -4,6 +4,7 @@ import { MaterialSymbol } from 'react-material-symbols';
 import 'react-material-symbols/rounded';
 
 import Loading from "../../../../components/Loading/Loading";
+import base64ToBlob from "../../../../util/base64ToBlob";
 
 // Parent component
 // 1. src/routes/Records/ColorRecords.jsx
@@ -22,7 +23,7 @@ const SlideshowColorRecords = ( {
 
     // Declare Mobile breakpoint
     const desktopBreakpoint = 1280;
-    const mobileBreakpoint = 860;
+    const mobileBreakpoint = 600;
 
     const slideshowWidthGt = '514px';
     // For window.inner.width < 
@@ -35,12 +36,18 @@ const SlideshowColorRecords = ( {
     const btnParentWidthGt = Math.floor(slideshowWidthGt * 0.12);
     const btnParentWidthLt = Math.floor(slideshowWidthLt * 0.12);
 
+    const indicatorBtnWidthGt = Math.floor(slideshowWidthGt * 0.06);
+    const indicatorBtnWidthLt = Math.floor(slideshowWidthLt * 0.05);
+
+    // Flattening userColorRecords[[{}, {}, {}]]
+    const userColorRecordsArray = userColorRecords ? userColorRecords.flat() : [];
+
     // To update Slideshow Photos' index
     const updateIndex = (newIndex) => {
         if (newIndex < 0) {
             // Not to show when officePhotos.length < 0
             newIndex = 0;
-        } else if (newIndex >= userColorRecords.flat().length) {
+        } else if (newIndex >= userColorRecordsArray.length) {
             // When Slideshow hits the last item
             // It will just go back to 1st item => LOOP
             newIndex = 0;
@@ -55,139 +62,152 @@ const SlideshowColorRecords = ( {
           
           // Increment the active index
           updateIndex(activeIndex + 1);
-        }, 3000); // Advance every 3 seconds
+        }, 7200000); // Advance every 2 hours
     
         // Clear the interval when the component is unmounted
         return () => clearInterval(interval);
     }, [activeIndex]); // Re-run the effect when activeIndex changes
     
-    console.log(`\nSlideshowColorRecords:\nuserColorRecords:\n`, userColorRecords, `\n`);
-    console.log(`\nSlideshowColorRecords:\nuserColorRecords.flat():\n`, userColorRecords.flat(), `\n`);
+    console.log(`\nSlideshowColorRecords:\nuserColorRecordsArray:\n`, userColorRecordsArray, `\n`);
+
+    if (!userColorRecordsArray.length) return <Loading />;
+
+    const activeRecord = userColorRecordsArray[activeIndex];
 
     return (
-        !userColorRecords.length > 0 ? 
-        <Loading /> :
-        <React.Fragment>
-            <div 
-                className="slideshow"
-                style={{
-                    width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt,
-                    scale: dimensions.width < mobileBreakpoint ? "0.85" : ""
-                }}
-            >
+    <React.Fragment>
+        <div 
+            className="slideshow"
+            style={{
+                width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt,
+                scale: dimensions.width < mobileBreakpoint ? "0.85" : ""
+            }}
+        >
+            <React.Fragment>
 
-            {userColorRecords.map((each, index) => {
-                return (
-                    <React.Fragment>
-                        <div 
-                            className="slideshow"
-                            style={{ width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt,
-                            scale: dimensions.width < mobileBreakpoint ? "0.85" : ""
-                            }}
+                <React.Fragment>
+                <div 
+                className="slideshow__inner" 
+                // style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+                >
+                    
+                    <h2>Date Time of Color Record</h2>
+                    <p className="slideshowText--p">{userColorRecordsArray[activeIndex].date_time}</p>
+                    <br/>
+                    <p>Test Slideshow details</p>
+                </div>
+                
+                <br />
+
+                <div className="slideshow__btn" 
+                    style={{ width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt }}
+                >
+                    <button 
+                        // style={{
+                        //     width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
+                        // }}
+                        style={{
+                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
+                            visibility: dimensions.width < 800 ? "hidden" : "visible"
+                        }}
+                        className="slideshow__btn--arrow frosted__children"
+                        onClick={() => updateIndex(activeIndex - 1)}
+                    >
+                        <MaterialSymbol 
+                            icon="arrow_back_ios" 
+                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
+                        />
+                    </button>
+
+                    <div className="indicators">
+                        {userColorRecordsArray.map((record, index) => (
+                        <button
+                        key={index}
+                        className="indicators--btn"
+                        style={{
+                            width: dimensions.width >= mobileBreakpoint ? Math.floor(slideshowWidthGt * 0.005) : Math.floor(slideshowWidthLt * 0.005)
+                        }}
+                        onClick={() => updateIndex(index)}
                         >
+                        <MaterialSymbol 
+                        icon="brightness_1"
+                        className={`${index === activeIndex ? "indicator-symbol-active" : "indicator-symbol"}`}
+                        style={{ width: dimensions.width >= mobileBreakpoint ? indicatorBtnWidthGt : indicatorBtnWidthLt }}
+                        />
+                        </button>
+                        ))}
+                    </div>
 
-                            <div className="slideshow__inner" style={{ transform:  `translate(-${activeIndex * 100}%)` }}
-                            >
-                            <p>Slideshow DateTime testing</p>
-                            <p>Date Time of Color Record</p>
+                    <button 
+                        style={{
+                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
+                            visibility: dimensions.width < 800 ? "hidden" : "visible"
+                        }}
+                        className="slideshow__btn--arrow frosted__children"
+                        onClick={() => updateIndex(activeIndex + 1)}
+                    >
+                        <MaterialSymbol 
+                            icon="arrow_forward_ios" 
+                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
+                        />
+                    </button>
+                </div>  
+                </React.Fragment>                
+            </React.Fragment>
 
-                            <p>Test Slideshow details</p>
-                            </div>
+            {/* <React.Fragment>
+                <div className="slideshow__btn" 
+                    style={{ width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt }}
+                >
+                    <button 
+                        style={{
+                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
+                        }}
+                        className="slideshow__btn--arrow frosted__children"
+                        onClick={() => updateIndex(activeIndex - 1)}
+                    >
+                        <MaterialSymbol 
+                            icon="arrow_back_ios" 
+                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
+                        />
+                    </button>
 
-                        
-                            {/* Slideshow button backward */}
-                            <div className="slideshow__btn"
+                    <div className="indicators">
+                        {userColorRecordsArray.map((record, index) => (
+                            <button
+                                key={index}
+                                className="indicators--btn"
                                 style={{
-                                    width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt,
+                                    width: dimensions.width >= mobileBreakpoint ? Math.floor(slideshowWidthGt * 0.005) : Math.floor(slideshowWidthLt * 0.005)
                                 }}
+                                onClick={() => updateIndex(index)}
                             >
-                                <button 
-                                    style={{
-                                    width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
-                                    }}
-                                    className="slideshow__btn--arrow frosted__children"
-                                    onClick={() => {
-                                        updateIndex(activeIndex - 1);
-                                    }}
-                                >
-                                    <MaterialSymbol 
-                                        icon="arrow_back_ios" 
-                                        style={{width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt}}
-                                    />
-                                </button>
-                            
-                                <div className="indicators"
-                                    style={{
-                                        // width: dimensions.width >= mobileBreakpoint ? indicatorWidthGt : indicatorWidthLt,
-                                    }}
-                                >
-                                    {/* <p>Slideshow Indicator testing</p> */}
-                                    {/* To relay same number of Radio Buttons Checked according to number of existing BraPhotos */}
-                                    <button 
-                                        className="indicators--btn"
-                                        style={{ width: dimensions.width >= mobileBreakpoint ? Math.floor(slideshowWidthGt * 0.06) : Math.floor(slideshowWidthLt * 0.06),
-                                        }}
-                                        onClick={() => {
-                                        // updateIndex with current index
-                                            updateIndex(index);
-                                        }}
-                                    >
-                                        <span 
-                                            className={`material-symbols-outlined ${ index === activeIndex ? 
-                                            "indicator-symbol-active" : 
-                                            "indicator-symbol" }`
-                                            }
-                                        >
-                                            radio_button_checked
-                                        </span>
-                                    </button>
-                                </div>
-                            
-                                <button 
-                                    style={{
-                                        width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
-                                        visibility: dimensions.width < 800 ? "hidden" : "visible"
-                                        }}
-                                        className="slideshow__btn--arrow frosted__children"
-                                        onClick={() => {
-                                            updateIndex(activeIndex + 1);
-                                        }}
-                                >
-                                    <MaterialSymbol 
-                                        icon="arrow_forward_ios" 
-                                        style={{width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt}}
-                                    />
-                                </button>
-                            </div>
+                                <MaterialSymbol 
+                                    icon="brightness_1"
+                                    className={`${index === activeIndex ? "indicator-symbol-active" : "indicator-symbol"}`}
+                                    style={{ width: dimensions.width >= mobileBreakpoint ? indicatorBtnWidthGt : indicatorBtnWidthLt }}
+                                />
+                            </button>
+                        ))}
+                    </div>
 
-                            <div className="slideshow__inner"
-                                style={{
-                                    transform: `translate(-${activeIndex * 100}%)`
-                                }}
-                            >
-                                {/* {BraPhotos.map((item, i) => {
-                                    // Adding 100% will render next image
-                                    return <BraSlideshowText 
-                                            item={item} 
-                                            width={"100%"}
-                                            dimensions={dimensions}
-                                            slideshowWidthGt={slideshowWidthGt}
-                                            slideshowWidthLt={slideshowWidthLt}
-                                            slideshowHeightGt={slideshowHeightGt}
-                                            slideshowHeightLt={slideshowHeightLt}
-                                            breakpoint={breakpoint}
-                                            mobileBreakpoint={mobileBreakpoint}
-                                            />
-                                })} */}
-                            </div>
-
-                        </div>
-                    </React.Fragment>
-                )
-                })
-            }
-            </div>
-        </React.Fragment>
+                    <button 
+                        style={{
+                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
+                            visibility: dimensions.width < 800 ? "hidden" : "visible"
+                        }}
+                        className="slideshow__btn--arrow frosted__children"
+                        onClick={() => updateIndex(activeIndex + 1)}
+                    >
+                        <MaterialSymbol 
+                            icon="arrow_forward_ios" 
+                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
+                        />
+                    </button>
+                </div>
+            </React.Fragment> */}
+        </div>
+    </React.Fragment>
     );
 };
 

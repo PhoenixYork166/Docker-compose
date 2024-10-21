@@ -8,7 +8,7 @@ const register = require('./controllers/register');
 const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
-const records = require('./controllers/records');
+const colorRecords = require('./controllers/colorRecords');
 const fetch = require('node-fetch');
 
 const rootDir = require('./util/path');
@@ -100,8 +100,9 @@ app.post('/celebrityimage', (req, res) => { image.handleCelebrityApi(req, res, f
 app.post('/colorimage', (req, res) => { image.handleColorApi(req, res, fetch) } )
 app.post('/ageimage', (req, res) => { image.handleAgeApi(req, res, fetch) } )
 
-app.post('/save-user-color', (req, res) => {records.saveUserColor(req, res, db, saveBase64Image) } )
-app.post('/get-user-color', (req, res) => { records.getUserColor(req, res, db, transformColorData) })
+// User's color records
+app.post('/save-user-color', (req, res) => {colorRecords.saveUserColor(req, res, db, saveBase64Image) } )
+app.post('/get-user-color', (req, res) => { colorRecords.getUserColor(req, res, db, transformColorData) })
 
 // app.listen(port, fn)
 // fn will run right after listening to a port

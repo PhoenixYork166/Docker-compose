@@ -120,8 +120,9 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
   const base64Metadata = JSON.stringify(imageRecord.metadata);
 
   const start = performance.now();
-  const requestHandlerName = `rootDir/controllers/image.js\nsaveColor()`;
+  const requestHandlerName = `rootDir/controllers/colorRecords.js\nsaveColor()`;
   console.log(`\nStart processing ${requestHandlerName}\n`);
+  console.log(`\nreq.body.userId: `, userId, `\n`);
 
   db.transaction((trx) => {
     trx.insert({
@@ -225,7 +226,7 @@ const getUserColor = (req, res, db, transformColorData) => {
     printDateTime();
     const start = performance.now();
 
-    const requestHandlerName = `rootDir/controllers/image.js\ngetUserColor()`;
+    const requestHandlerName = `rootDir/controllers/colorRecords.js\ngetUserColor()`;
     
     const { userId } = req.body;
     // console.log(`\ntypeof userId:\n`, typeof userId, `\n`);
