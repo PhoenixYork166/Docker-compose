@@ -1,6 +1,6 @@
 // Button Text Roll effects
 const useButtonTextRoll = (tabs) => {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     tabs.forEach(tab => {
         tab.onmouseover = (event) => {
@@ -27,7 +27,7 @@ const useButtonTextRoll = (tabs) => {
                     clearInterval(interval);
                     target.innerText = finalText; // Ensure final text is set after animation
                 }
-            }, 50); // Finish animation in 0.5 second
+            }, 15); // Finish animation in 0.5 second
         }
     });
 }

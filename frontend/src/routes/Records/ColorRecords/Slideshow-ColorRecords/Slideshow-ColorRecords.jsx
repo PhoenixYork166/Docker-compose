@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import "./Slideshow.scss";
+import "./ColorTable.scss";
 import { MaterialSymbol } from 'react-material-symbols';
 import 'react-material-symbols/rounded';
 
@@ -15,6 +16,7 @@ const SlideshowColorRecords = ( {
     
     // useState Slideshow officePhotos' index
     const [activeIndex, setActiveIndex] = useState(0);
+    const [blobImages, setBlobImages] = useState([]);
 
     // Monitor resolutions
     //console.log(`dimensions.width * 0.8 * 0.5: ${dimensions.width * 0.8 * 0.5}`)
@@ -42,6 +44,21 @@ const SlideshowColorRecords = ( {
     // Flattening userColorRecords[[{}, {}, {}]]
     const userColorRecordsArray = userColorRecords ? userColorRecords.flat() : [];
 
+    // Convert base64 strings to blobs & store them in this.state
+    useEffect(() => {
+        if (userColorRecords) {
+            const blobs = userColorRecords.flat().map((record) => {
+                // Assuming 'image/jpeg' is MIME type
+                const blob = base64ToBlob(record.metadata, 'image/jpeg');
+
+                return URL.createObjectURL(blob); // Create a URL for the blob for rendering
+            });
+
+            setBlobImages(blobs);
+        }
+    }, [userColorRecords]); // Depend on userColorRecords to update blobs
+
+
     // To update Slideshow Photos' index
     const updateIndex = (newIndex) => {
         if (newIndex < 0) {
@@ -68,11 +85,10 @@ const SlideshowColorRecords = ( {
         return () => clearInterval(interval);
     }, [activeIndex]); // Re-run the effect when activeIndex changes
     
-    console.log(`\nSlideshowColorRecords:\nuserColorRecordsArray:\n`, userColorRecordsArray, `\n`);
-
     if (!userColorRecordsArray.length) return <Loading />;
 
-    const activeRecord = userColorRecordsArray[activeIndex];
+    console.log(`\nSlideshowColorRecords:\n`, userColorRecordsArray, `\n`);
+    console.log(`\nSlideshowColorRecords blobImages:\n`, blobImages, `\n`);
 
     return (
     <React.Fragment>
@@ -89,11 +105,77 @@ const SlideshowColorRecords = ( {
                 className="slideshow__inner" 
                 // style={{ transform: `translateX(-${activeIndex * 100}%)` }}
                 >
-                    
-                    <h3 className="slideshowText--heading">Date Time of Color Record</h3>
-                    <p className="slideshowText--p">{userColorRecordsArray[activeIndex].date_time}</p>
+                    <h3 className="slideshow__inner--heading">
+                        Datetime of record
+                    </h3>
+                    <p className="slideshow__inner--p">{userColorRecordsArray[activeIndex].date_time}</p>
                     <br/>
                     <p>Test Slideshow details</p>
+                    <div className="color-page">
+                        <img className="color-table-image" src={blobImages[activeIndex]} alt="image-blob" />
+                        <div>
+                           <table className="color-table">
+                            <thead>
+                                <tr>
+                                    <th>Color</th>
+                                    <th>Raw hex</th>
+                                    <th>Raw hex val</th>
+                                    <th>W3C Color</th>
+                                    <th>W3C Color Name</th>
+                                    <th>W3C hex</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userColorRecordsArray[activeIndex].raw_hex.map((hex, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <input 
+                                                type="color" 
+                                                value={hex} 
+                                                className="color"
+                                                readOnly
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                className="raw-hex"
+                                                value={hex}
+                                                readOnly
+                                            />
+                                        </td>
+                                        <td>{userColorRecordsArray[activeIndex].hex_value[index]}</td>
+                                        <td>
+                                            <input 
+                                                className="w3c-color"
+                                                type="color" 
+                                                value={userColorRecordsArray[activeIndex].w3c_hex[index]} 
+                                                readOnly
+                                            />
+                                        </td>
+                                        <td>
+                                            <input 
+                                                className="w3c-name"
+                                                type="text"
+                                                value={userColorRecordsArray[activeIndex].w3c_name[index]}
+                                                readOnly
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                className='w3c-hex'
+                                                type="text"
+                                                value={userColorRecordsArray[activeIndex].w3c_hex[index]}
+                                                readOnly
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                           </table> 
+                        </div>
+                        
+                    </div>
                 </div>
                 
                 <br />
@@ -154,57 +236,6 @@ const SlideshowColorRecords = ( {
                 </React.Fragment>                
             </React.Fragment>
 
-            {/* <React.Fragment>
-                <div className="slideshow__btn" 
-                    style={{ width: dimensions.width >= mobileBreakpoint ? slideshowWidthGt : slideshowWidthLt }}
-                >
-                    <button 
-                        style={{
-                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
-                        }}
-                        className="slideshow__btn--arrow frosted__children"
-                        onClick={() => updateIndex(activeIndex - 1)}
-                    >
-                        <MaterialSymbol 
-                            icon="arrow_back_ios" 
-                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
-                        />
-                    </button>
-
-                    <div className="indicators">
-                        {userColorRecordsArray.map((record, index) => (
-                            <button
-                                key={index}
-                                className="indicators--btn"
-                                style={{
-                                    width: dimensions.width >= mobileBreakpoint ? Math.floor(slideshowWidthGt * 0.005) : Math.floor(slideshowWidthLt * 0.005)
-                                }}
-                                onClick={() => updateIndex(index)}
-                            >
-                                <MaterialSymbol 
-                                    icon="brightness_1"
-                                    className={`${index === activeIndex ? "indicator-symbol-active" : "indicator-symbol"}`}
-                                    style={{ width: dimensions.width >= mobileBreakpoint ? indicatorBtnWidthGt : indicatorBtnWidthLt }}
-                                />
-                            </button>
-                        ))}
-                    </div>
-
-                    <button 
-                        style={{
-                            width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt,
-                            visibility: dimensions.width < 800 ? "hidden" : "visible"
-                        }}
-                        className="slideshow__btn--arrow frosted__children"
-                        onClick={() => updateIndex(activeIndex + 1)}
-                    >
-                        <MaterialSymbol 
-                            icon="arrow_forward_ios" 
-                            style={{ width: dimensions.width >= mobileBreakpoint ? btnParentWidthGt : btnParentWidthLt }}
-                        />
-                    </button>
-                </div>
-            </React.Fragment> */}
         </div>
     </React.Fragment>
     );
