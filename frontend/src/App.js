@@ -387,9 +387,6 @@ class App extends Component {
 
   // Retrieve User's Color Records from Node.js => PostgreSQL
   onColorRecordsButton = () => {
-    // Reset all state variables to allow proper rendering of side-effects
-    this.resetState();
-
     // Change Route to 'colorRecords' => Checkout App.js onRouteChange()
     this.onRouteChange('colorRecords');
 
