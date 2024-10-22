@@ -31,13 +31,13 @@ class App extends Component {
 
     const userData = localStorage.getItem('user');
     const lastRoute = localStorage.getItem('lastRoute');
-    // const defaultRoute = userData ? 'home' : 'signin';
     const defaultRoute = userData? (lastRoute || 'home') : 'signin';
-
+    
     // Load User's records from localStorage, or set to null if not yet stored
     const userColorRecords = localStorage.getItem('userColorRecords');
     const userCelebrityRecords = localStorage.getItem('userCelebrityRecords');
     const userAgeRecords = localStorage.getItem('userAgeRecords');
+    
 
     this.state = {
       input: '', // this.state.input => Users' input imageUrl => Can be used for onClick events
@@ -54,11 +54,8 @@ class App extends Component {
       responseStatusCode: Number(''),
       route: defaultRoute,
       isSignedIn: userData ? true : false,
-      
-      // user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
-      // Retrieving User's records from PostgreSQL
-
-      user: userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
+      // isSignedIn: userData && Object.keys(userData).length > 0,
+      user: userData ? JSON.parse(userData) : {},      
 
       userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
       userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
@@ -91,6 +88,7 @@ class App extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.state.user !== prevState.user) { 
       this.validateUsers();
+      this.updateLocalStorage('user', this.state.user, prevState.user);
     }
     // ** Storing User's latest route
     if (this.state.route !== prevState.route) {
@@ -98,16 +96,31 @@ class App extends Component {
     }
 
     // Check if records have been updated & store them in localStorage
-    if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
-      localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
-    }
+    // if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
+    //   localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
+    // }
+    this.updateLocalStorage('userCelebrityRecords', this.state.userCelebrityRecords, prevState.userCelebrityRecords);
+
     // Check if records have been updated & store them in localStorage
-    if (this.state.userColorRecords !== prevState.userColorRecords) {
-      localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
-    }
+    // if (this.state.userColorRecords !== prevState.userColorRecords) {
+    //   localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
+    // }
+    this.updateLocalStorage('userColorRecords', this.state.userColorRecords, prevState.userColorRecords);
+
     // Check if records have been updated & store them in localStorage
-    if (this.state.userAgeRecords !== prevState.userAgeRecords) {
-      localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
+    // if (this.state.userAgeRecords !== prevState.userAgeRecords) {
+    //   localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
+    // }
+    this.updateLocalStorage('userAgeRecords', this.state.userAgeRecords, prevState.userAgeRecords);
+  }
+
+  updateLocalStorage(key, newValue, oldValue) {
+    if (newValue !== oldValue) {
+      try {
+        localStorage.setItem(key, JSON.stringify(newValue));
+      } catch (err) {
+        console.error(`\nError updating ${key} in localStorage: `, err, `\n`);
+      }
     }
   }
   
@@ -243,13 +256,13 @@ class App extends Component {
   // sending data to server-side
   
   /* Updating Entries - Fetching local web server vs live web server on Render */
-  updateEntries = () => {
+  updateEntries = async () => {
     const devUpdateEntriesUrl = 'http://localhost:3001/image';
     const prodUpdateEntriesUrl = 'https://ai-recognition-backend.onrender.com/image';
 
     const fetchUrl = process.env.NODE_ENV === 'production' ? prodUpdateEntriesUrl : devUpdateEntriesUrl;
     
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
         method: 'put', // PUT (Update) 
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ // sending stringified this.state variables as JSON objects
@@ -278,7 +291,7 @@ class App extends Component {
   // Arrow function to send this.state.state_raw_hex_array
   // to server-side right after setting state for state_raw_hex_array
   // to avoid delay in server-side
-  loadRawHex = () => {
+  loadRawHex = async () => {
     const devFetchRawHexUrl = 'http://localhost:3001/image';
     const prodFetchRawHexUrl = 'https://ai-recognition-backend.onrender.com/image';
     
@@ -286,7 +299,7 @@ class App extends Component {
 
     /* Sending state user.id && state_raw_hex_array to local server-side */
     // Fetching live Web Server on Render
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
       method: 'put', // PUT (Update) 
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -325,7 +338,7 @@ class App extends Component {
   }
 
   // ClarifaiAPI Celebrity Face Detection model
-  onCelebrityButton = () => {
+  onCelebrityButton = async () => {
     // Reset all state variables to allow proper rendering from Detection Models
     // Before next fetch
     this.resetState();
@@ -351,7 +364,7 @@ class App extends Component {
 
     const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchCelebrityImageUrl : devFetchCelebrityImageUrl;
 
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
         method: 'post', 
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ // sending stringified this.state variables as JSON objects
@@ -386,9 +399,9 @@ class App extends Component {
   };
 
   // Retrieve User's Color Records from Node.js => PostgreSQL
-  onColorRecordsButton = () => {
+  onColorRecordsButton = async () => {
     // Reset all state variables to allow proper rendering of side-effects
-    // this.resetState();
+    this.resetState();
 
     // Change Route to 'colorRecords' => Checkout App.js onRouteChange()
     this.onRouteChange('colorRecords');
@@ -404,7 +417,7 @@ class App extends Component {
 
     console.log(`\nFetching ${fetchUrl} with bodyData: `, bodyData, `\n`);
 
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -433,7 +446,7 @@ class App extends Component {
   }
 
   // ClarifaiAPI Color Detection model
-  onColorButton = () => {
+  onColorButton = async () => {
     // Reset all state variables to allow proper rendering from Detection Models
     // Before next fetch
     this.resetState(); 
@@ -456,7 +469,7 @@ class App extends Component {
 
     const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchColorImageUrl : devFetchColorImageUrl;
 
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
       method: 'post', 
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ // sending stringified this.state variables as JSON objects
@@ -480,7 +493,7 @@ class App extends Component {
   };
   
   // ClarifaiAPI Age Detection model
-  onAgeButton = () => {
+  onAgeButton = async () => {
     // Reset all state variables to allow proper rendering from Detection Models
     // Before next fetch
     this.resetState();
@@ -503,7 +516,7 @@ class App extends Component {
 
     const fetchUrl = process.env.NODE_ENV === 'production' ? prodFetchAgeUrl : devFetchAgeUrl;
 
-    fetch(fetchUrl, {
+    await fetch(fetchUrl, {
         method: 'post', 
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ // sending stringified this.state variables as JSON objects
@@ -589,6 +602,32 @@ class App extends Component {
         return;
     }
   };
+
+  // src/components/Navigation/Navigation.jsx
+  onSignout = () => {
+    this.setState({
+      celebrity: {},
+      colors: [],
+      age: [],
+    }, 
+    () => this.resetUser(),
+    () => this.removeUserFromLocalStorage(),
+    () => this.resetState(),
+    () => console.log('this.state.celebrity:\n', this.state.celebrity),
+    () => console.log('this.state.colors:\n', this.state.colors),
+    () => console.log('this.state.age:\n', this.state.age),
+    () => this.onRouteChange('signin'));
+    
+    // this.resetUser();
+    // this.removeUserFromLocalStorage();
+    // this.resetState();
+    // this.setState({
+    //   celebrity: {},
+    //   colors: [],
+    //   age: [],
+    // });
+    // this.onRouteChange('signin');
+  }
 
   // To avoid malicious users from breaking in from <Register />
   // If there's no user.id => route to 'signin' page
@@ -787,6 +826,8 @@ class App extends Component {
           removeUserFromLocalStorage={this.removeUserFromLocalStorage}
           onRouteChange={this.onRouteChange}
           resetUser={this.resetUser}
+          resetState={this.resetState}
+          onSignout={this.onSignout}
         />
 
         {routeComponents[route] ?? <div>Page not found</div>}

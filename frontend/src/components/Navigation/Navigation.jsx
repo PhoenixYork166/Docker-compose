@@ -1,12 +1,15 @@
 import classes from './Navigation.module.css';
 import React from 'react';
 
-
+// Parent component
+// src/App.js
 const Navigation = ( { 
     isSignedIn, 
     removeUserFromLocalStorage,
     onRouteChange,
-    resetUser
+    resetUser,
+    resetState,
+    onSignout
      }) => {
     
         return (
@@ -20,12 +23,13 @@ const Navigation = ( {
                     {/* If 'Sign Out' is clicked, nav to 'signin' page */}
                     <p 
                         className={`${classes.navPara}`}
-                        onClick={() => {
-                            resetUser(() => {
-                                // removeUserFromLocalStorage();
-                                onRouteChange('signin');
-                            })
-                        }} 
+                        onClick={
+                            onSignout
+                            // resetUser();
+                            // removeUserFromLocalStorage();
+                            // resetState();
+                            // onRouteChange('signin');
+                        } 
                     >
                         Sign Out
                     </p>

@@ -116,8 +116,21 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
   const { userId, imageRecord, imageDetails } = req.body;
   // Type safety without using TypeScript
   const date_time = new Date().toISOString();
-  const userIdInt = parseInt(userId, 10);
-  const base64Metadata = JSON.stringify(imageRecord.metadata);
+
+  let userIdInt = parseInt(userId, 10);
+  if (isNaN(userIdInt)) {
+    return res.status(400).json({ error: 'Invalid userId, must be a number' });
+  }
+
+  // console.log(`\nimageRecord.metadata:\n`, imageRecord.metadata, `\n`);
+  let base64Metadata;
+  if (typeof imageRecord.metadata === 'string') {
+    base64Metadata = imageRecord.metadata;
+  } else {
+    base64Metadata = JSON.stringify(imageRecord.metadata);
+  }
+
+  console.log(`\ndateTime: ${date_time}\ntypeof base64Metadata: `, typeof base64Metadata, `\n`);
 
   const start = performance.now();
   const requestHandlerName = `rootDir/controllers/colorRecords.js\nsaveColor()`;
@@ -128,6 +141,7 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
     trx.insert({
       user_id: userIdInt,
       image_url: imageRecord.imageUrl,
+      // metadata: base64Metadata,
       metadata: base64Metadata,
       date_time: date_time
     })
@@ -153,20 +167,20 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
         trx.commit();
       })
       .then(() => {
-        console.log('Proceeding to save base64 image.');
+        console.log('\nProceeding to save base64 image.\n');
         // Allow Promise chaining by return
         return saveBase64Image(base64Metadata, userIdInt);
       })
       .then((saveBase64Results) => {
         const end = performance.now();
         const duration = end - start;
-        console.log(`Performance for saveBase64Image locally to Node.js server is: ${duration}ms\n`);
+        console.log(`\nPerformance for saveBase64Image locally to Node.js server is: ${duration}ms\n`);
         
         res.status(200).json({
           success: true,
           status: { code: 200 },
           message: `Transaction completed successfully!`,
-          performance: `Duration: ${duration}ms`
+          performance: `Performance: ${duration}ms`
         });
       })
       .catch((err) => {
