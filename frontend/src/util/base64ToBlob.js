@@ -7,8 +7,24 @@
 
 in any React component
 import { base64ToBlob } from 'src/util/base64ToBlob';
-const blob = base64
+const blob = base64ToBlob(base64, 'image/jpeg');
+
+// In any React component 
+// Convert base64 strings to blobs & store them in this.state
+    useEffect(() => {
+        if (userColorRecords) {
+            const blobs = userColorRecords.flat().map((record) => {
+                // Assuming 'image/jpeg' is MIME type
+                const blob = base64ToBlob(record.metadata, 'image/jpeg');
+
+                return URL.createObjectURL(blob); // Create a URL for the blob for rendering
+            });
+
+            setBlobImages(blobs);
+        }
+    }, [userColorRecords]); // Depend on userColorRecords to update blobs
 */
+
 const base64ToBlob = (base64, mime) => {
     // Decode the base64 string by first splitting the string to eliminate the data URL prefix (e.g., "data:image/jpeg;base64,")
     // and then using `atob` to convert the base64 encoded part to a binary string.

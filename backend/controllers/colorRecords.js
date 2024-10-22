@@ -123,11 +123,18 @@ const saveUserColor = (req, res, db, saveBase64Image) => {
   }
 
   // console.log(`\nimageRecord.metadata:\n`, imageRecord.metadata, `\n`);
+  // const base64Metadata = JSON.stringify(imageRecord.metadata);
+
   let base64Metadata;
   if (typeof imageRecord.metadata === 'string') {
-    base64Metadata = imageRecord.metadata;
+    try {
+      base64Metadata = JSON.stringify(imageRecord.metadata);
+    } catch (err) {
+      return res.status(400).json({ error: 'Invalid JSON format in metadata' });
+    }
   } else {
-    base64Metadata = JSON.stringify(imageRecord.metadata);
+    JSON.stringify(imageRecord.metadata); // This will throw if metadata is not valid JSON
+    base64Metadata = imageRecord.metadata;
   }
 
   console.log(`\ndateTime: ${date_time}\ntypeof base64Metadata: `, typeof base64Metadata, `\n`);
