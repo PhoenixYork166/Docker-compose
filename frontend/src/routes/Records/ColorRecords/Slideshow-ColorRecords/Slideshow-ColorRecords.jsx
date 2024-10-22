@@ -110,7 +110,6 @@ const SlideshowColorRecords = ( {
                     </h3>
                     <p className="slideshow__inner--p">{userColorRecordsArray[activeIndex].date_time}</p>
                     <br/>
-                    <p>Test Slideshow details</p>
                     <div className="color-page">
                         <img className="color-table-image" src={blobImages[activeIndex]} alt="image-blob" />
                         <div>

@@ -54,11 +54,11 @@ class App extends Component {
       responseStatusCode: Number(''),
       route: defaultRoute,
       isSignedIn: userData ? true : false,
-      user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
+      
+      // user: JSON.parse(userData) || {}, // localStorage user{} is stored in JSON.stringified
       // Retrieving User's records from PostgreSQL
 
-      // user: userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
-      // Retrieving User's records from PostgreSQL
+      user: userData ? JSON.parse(userData) : {}, // localStorage user{} is stored in JSON.stringified
 
       userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
       userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
