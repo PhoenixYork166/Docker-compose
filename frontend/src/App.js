@@ -76,12 +76,28 @@ class App extends Component {
     this.resetInactivityTimer();
     // Adding EventListener to window 'resize' events
     window.addEventListener('resize', this.handleResize);
+    
     // this.state.dimensions => Periodically clean up this.state.dimensions{} in every 5 minutes
     this.dimensionsCleanupTimer = setInterval(() => {
       this.setState({ dimensions: { width: window.innerWidth } });
     }, 300000); // Reset this.state.dimensions{} in every 5 minutes
+
+    // this.state.user => Refresh this.state.user every 3 seconds
+    this.userRefreshInterval = setInterval(() => {
+      this.refreshUserData();
+    }, 3000);
   }
 
+  refreshUserData() {
+    // Fetch user data from localStorage
+    const updatedUserData = localStorage.getItem('user');
+    if (updatedUserData) {
+      const user = JSON.parse(updatedUserData);
+      if (user !== this.state.user) {
+        this.setState({ user });
+      }
+    }
+  }
   /* Keep tracking for user state variables */
   // useEffect() hook combining componentDidUpdate & componentWillUnmount
   // Validate users whenever there's a change

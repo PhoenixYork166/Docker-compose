@@ -89,10 +89,13 @@ const ColorRecognition = ( {
         });
         
         const bodyData = JSON.stringify({ 
-            userId: user.id, 
+            userId: user.id,
+            imageBlob: imageBlob, 
             imageRecord: imageRecord, 
             imageDetails: imageDetails 
         });
+        
+        console.log(`\nColorRecognition imageBlob:\n`, imageBlob, `\n`);
         console.log(`\nColorRecognition resData:\n`, resData, `\n`);
         console.log(`\nColorDetails saveColor user.id: `, user.id, `\n`);
         console.log(`\nColorDetails color_props: `, color_props, `\n`);
