@@ -2,6 +2,8 @@
 
 ![Docker-compose](https://cdn.hashnode.com/res/hashnode/image/upload/v1662313547352/s0Uk-haLQ.jpg)
 
+![Clarifai](https://www.clarifai.com/hubfs/AI%20in%205-jpg.jpeg)
+
 ![React.js](https://media.licdn.com/dms/image/D4D12AQF26-NZ279EaA/article-cover_image-shrink_600_2000/0/1688018102545?e=2147483647&v=beta&t=Q9aUSt_UHzSqZYyDycri3s2kqVDlPc-YM0ZzlH2yfYc)
 
 ![Node.js](https://cdn.gabrieleromanato.com/5c37214980b3/uploads/2018/09/nodejs.jpg)
