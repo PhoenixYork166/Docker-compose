@@ -100,6 +100,7 @@
 
 .falist {
     scale: 0.5;
+    // scale: 1.0;
     // margin-bottom: 5rem;
     visibility: visible;
     top: "";
@@ -108,7 +109,7 @@
     transition: 0.1s;
     margin-right: 2rem;
     cursor: pointer;
-    padding: 1rem;
+    padding: 0.5rem;
     
     // Frosted Container:before
     &:before {
@@ -156,6 +157,19 @@
     }
 }
 
+@media (max-width: 400px) {
+    .falist {
+        scale: 1.0;
+
+        &:hover {
+            scale: 1.1;
+        }
+        &:active {
+            scale: 1.0;
+        }
+    }
+}
+
 .falist-0 {
     visibility: hidden;
 }
@@ -165,20 +179,21 @@
 }
 
 .imcross {
-    scale: 0.6;
-    margin-bottom: 0.8rem;
+    scale: 0.5;
+    padding: 0.5rem;
+    // margin-bottom: 0.6rem;
     visibility: visible;
     top: "";
     transition: 0.1s;
-    margin-right: 3.5rem;
+    margin-right: 2.2rem;
     color: $text-color;
     // color: rgba($color-secondary-dark, 1);
 
     &:hover {
         color: $text-color;
         // color: rgba($color-secondary-light, 1);
-        scale: 0.6;
-        transform: translateY(0.5rem);
+        scale: 0.55;
+        transform: translateY(0.1rem);
         //box-shadow: 0.6rem 0.6rem 0.6rem 0.6rem rgba($color-primary-dark, 0.8);
         box-shadow: 0.5rem 0.5rem 0.5rem rgba($font-light, 0.7);
     }
@@ -187,6 +202,20 @@
         scale: 0.5;
         transform: translateY(0);
         box-shadow: 0 0 0 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .imcross {
+        scale: 1.0;
+    
+        &:hover {
+            scale: 1.1;
+        }
+
+        &:active {
+            scale: 1.0;
+        }
     }
 }
 

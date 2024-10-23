@@ -32,14 +32,14 @@ export default function CheckRecordsLi( {
       >
         Home Page
       </button>
-      {/* <button 
+      <button 
         onClick={onCelebrityRecordsButton}
         onMouseEnter={useButtonTextRoll(tabs)}
         data-value="Celebrity records" 
         className={`${classes.lk} buttons__btn`}
       >
         Celebirty records
-      </button> */}
+      </button>
       <button 
         onClick={onColorRecordsButton}
         onMouseEnter={useButtonTextRoll(tabs)} 

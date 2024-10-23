@@ -1,7 +1,7 @@
 # Using latest Node version
 FROM node:latest
 
-ARG TIME_ZONE=Asia/Shanghai
+ARG TIME_ZONE=Asia/Hong_Kong
 # Set environment variables for APT
 ENV TZ=$TIME_ZONE
 ENV LANG=C.UTF-8
@@ -15,7 +15,7 @@ COPY package.json .
 USER root
 
 # Define build-time argument for hostname (optional)
-ARG DEFAULT_HOSTNAME=react-goals
+ARG DEFAULT_HOSTNAME=ai-react
 
 # Use the hostname in some configuration file or script
 RUN echo "Hostname of this Container: ${DEFAULT_HOSTNAME}" > /app/hostname_info.txt

@@ -25,13 +25,13 @@ const CelebrityRecords = ( {
         <React.Fragment>
             {/* <CheckRecordsPanel /> */}
             <div className="container frosted">
-            <h1 className="recordsHeading frosted__children">Color Records</h1>
+            <h1 className="recordsHeading frosted__children">Celebrity Records</h1>
             <SlideshowCelebrityRecords 
                 user={user} 
                 isSignedIn={isSignedIn} 
                 dimensions={dimensions}
                 // User's Celebrity Records
-                userColorRecords={userCelebrityRecords}
+                userCelebrityRecords={userCelebrityRecords}
             />
             </div>
         </React.Fragment>

@@ -7,29 +7,32 @@
 
 in any React component
 import { base64ToBlob } from 'src/util/base64ToBlob';
-const blob = base64ToBlob(base64, 'image/jpeg');
-
-// In any React component 
-// Convert base64 strings to blobs & store them in this.state
-    useEffect(() => {
-        if (userColorRecords) {
-            const blobs = userColorRecords.flat().map((record) => {
-                // Assuming 'image/jpeg' is MIME type
-                const blob = base64ToBlob(record.metadata, 'image/jpeg');
-
-                return URL.createObjectURL(blob); // Create a URL for the blob for rendering
-            });
-
-            setBlobImages(blobs);
-        }
-    }, [userColorRecords]); // Depend on userColorRecords to update blobs
+const blob = base64
 */
 
 const base64ToBlob = (base64, mime) => {
+    /*
     // Decode the base64 string by first splitting the string to eliminate the data URL prefix (e.g., "data:image/jpeg;base64,")
     // and then using `atob` to convert the base64 encoded part to a binary string.
-    const byteCharacters = atob(base64.split(',')[1]); // Decode base64
-    // Prepare to store byteArrays
+    // const byteCharacters = atob(base64.split(',')[1]); // Decode base64
+    // const byteArrays = [];
+    */
+
+    const parts = base64.split(',');
+    const base64Data = parts[1];
+
+    const isValidBase64 = (str) => {
+        const base64Regex = /^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/;
+    
+        return base64Regex.test(str);
+    }
+
+    if (!isValidBase64(base64Data)) {
+        console.error("Invalid base64 data");
+        return null;  // or throw an error
+    }
+    
+    const byteCharacters = atob(base64Data);
     const byteArrays = [];
 
     // Since the `atob` function returns a long string of characters (bytes), we need to handle it in smaller chunks.

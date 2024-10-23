@@ -1,4 +1,4 @@
--- 1.
+-- 1. users table
 CREATE TABLE users (
 	ID SERIAL PRIMARY KEY, 
 	name VARCHAR(100) NOT NULL, 
@@ -7,20 +7,20 @@ CREATE TABLE users (
 	joined timestamp without time zone NOT NULL
 );
 
--- 2.
+-- 2. login table
 CREATE TABLE login (
 	id SERIAL PRIMARY KEY,
 	hash VARCHAR(100) NOT NULL,
 	email TEXT UNIQUE NOT NULL
 );
 
--- 3.
+-- 3. image_record table
 CREATE TABLE image_record (
 	id SERIAL PRIMARY KEY,
 	user_id integer NOT NULL, 
 	image_url VARCHAR(255) NOT NULL,
-	--metadata VARCHAR(MAX) NOT NULL, 
-	metadata JSON NOT NULL,
+	metadata TEXT NOT NULL, 
+	--metadata JSON NOT NULL,
 	date_time timestamp with time zone NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -48,7 +48,7 @@ CREATE TRIGGER trigger_check_row_limit_on_image_record
 AFTER INSERT ON image_record
 FOR EACH ROW EXECUTE PROCEDURE enforce_row_limit_on_image_record();
 
--- 6.
+-- 6. image_details table
 CREATE TABLE image_details (
 	ID serial PRIMARY KEY,
 	image_id INT NOT NULL, --Assuming `image_record`.`id` INT
@@ -84,4 +84,39 @@ AFTER INSERT ON image_details
 FOR EACH ROW EXECUTE PROCEDURE enforce_row_limit_on_image_details();
 
 -- Paste new CREATE TABLE SQL here
+-- 10. celebrity_record table
+CREATE TABLE celebrity_record (
+	id serial PRIMARY KEY,
+	user_id integer NOT NULL, 
+    celebrity_name VARCHAR(100) NOT NULL,
+	image_url VARCHAR(255) NOT NULL,
+	image_blob TEXT NOT NULL,
+    metadata TEXT NOT NULL, 
+	date_time timestamp with time zone NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
+-- 11. 
+CREATE OR REPLACE FUNCTION enforce_row_limit_on_celebrity_record()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Set max. row to 100 only
+    IF (SELECT COUNT(*) FROM celebrity_record) > 1000 THEN
+        -- Delete entries that exceed the 1000-row limit
+        DELETE FROM celebrity_record
+        WHERE id IN(
+            SELECT id FROM celebrity_record
+            ORDER BY date_time DESC
+            LIMIT (SELECT COUNT(*) - 1000 FROM celebrity_record)
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 12.
+CREATE TRIGGER trigger_check_row_limit_on_celebrity_record
+AFTER INSERT ON celebrity_record
+FOR EACH ROW EXECUTE PROCEDURE enforce_row_limit_on_celebrity_record();
+
+-- 13.

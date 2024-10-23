@@ -1,3 +1,4 @@
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
@@ -11,8 +12,14 @@ const register = require('./controllers/register');
 const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
+const celebrityRecords = require('./controllers/celebrityRecords');
 const colorRecords = require('./controllers/colorRecords');
+
+const saveHtml = require('./controllers/saveHtml');
+
 const fetch = require('node-fetch');
+
+const puppeteer = require('puppeteer');
 
 const rootDir = require('./util/path');
 require('dotenv').config({ path: `${rootDir}/.env`});
@@ -39,6 +46,8 @@ const app = express();
 // Middleware for cookie-parser and pass the secret for signing the cookies
 app.use(cookieParser(process.env.MY_SECRET));
 
+app.use(bodyParser.json({ limit: '100mb' }));
+
 // Will need either app.use(express.json()) || app.use(bodyParser.json())
 // to parse json 
 app.use(express.json()); 
@@ -52,28 +61,35 @@ app.use(logger);
 
 // Express routes
 // create a basic route for root
-app.get('/', (req, res) => { root.handleRoot(req, res, db) } )
+app.get('/', (req, res) => { root.handleRoot(req, res, db) } );
 
 // create /signin route
-app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) } )
+app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) } );
 
 // create /register route
-app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) } )
+app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) } );
 
 // create /profile/:id route
 // grab via req..params props
-app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db) } )
+app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db) } );
 
 // create /image
 // increase entries
-app.put('/image', (req, res) => { image.handleImage(req, res, db) } )
-app.post('/celebrityimage', (req, res) => { image.handleCelebrityApi(req, res, fetch) } )
-app.post('/colorimage', (req, res) => { image.handleColorApi(req, res, fetch) } )
-app.post('/ageimage', (req, res) => { image.handleAgeApi(req, res, fetch) } )
+app.put('/image', (req, res) => { image.handleImage(req, res, db) } );
+app.post('/celebrityimage', (req, res) => { image.handleCelebrityApi(req, res, fetch) } );
+app.post('/colorimage', (req, res) => { image.handleColorApi(req, res, fetch) } );
+app.post('/ageimage', (req, res) => { image.handleAgeApi(req, res, fetch) } );
 
 // User's color records
-app.post('/save-user-color', (req, res) => {colorRecords.saveUserColor(req, res, db, saveBase64Image) } )
-app.post('/get-user-color', (req, res) => { colorRecords.getUserColor(req, res, db, transformColorData) })
+app.post('/save-user-color', (req, res) => {colorRecords.saveUserColor(req, res, db, saveBase64Image) } );
+app.post('/get-user-color', (req, res) => { colorRecords.getUserColor(req, res, db, transformColorData) });
+
+// User's celebrity records
+app.post('/save-user-celebrity', (req, res) => { celebrityRecords.saveUserCelebrity(req, res, db, saveBase64Image)});
+app.post('/get-user-celebrity', (req, res) => { celebrityRecords.getUserCelebrity(req, res, db)});
+
+// For Users to download records to .pdf files to their devices
+app.post('/save-html', async(req, res) => { saveHtml.saveHtml(req, res, puppeteer) });
 
 // app.listen(port, fn)
 // fn will run right after listening to a port

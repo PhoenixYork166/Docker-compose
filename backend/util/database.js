@@ -16,7 +16,7 @@ const db = knex({
     }
 });
 
-// Cloud SaaS Render deployment
+/* Cloud SaaS Render deployment */
 // const db = knex({
 //     client: 'pg',
 //     connection: process.env.PG_CONNECTION_STRING,

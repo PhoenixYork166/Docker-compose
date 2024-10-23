@@ -14,7 +14,7 @@ const SlideshowColorRecords = ( {
     userColorRecords
     } ) => {
     
-    // useState Slideshow officePhotos' index
+    // useState Slideshow Photos' index
     const [activeIndex, setActiveIndex] = useState(0);
     const [blobImages, setBlobImages] = useState([]);
     const indexRef = useRef(activeIndex); // Create a ref to store the current index
@@ -78,7 +78,7 @@ const SlideshowColorRecords = ( {
         indexRef.current = activeIndex;
     }, [activeIndex]);
 
-    // Allow Slideshow officePhotos to jump every 5 seconds
+    // Allow Slideshow Photos to jump every 5 seconds
     useEffect(() => {
         const interval = setInterval(() => {
           
@@ -116,7 +116,7 @@ const SlideshowColorRecords = ( {
                     <p className="slideshow__inner--p">{userColorRecordsArray[activeIndex].date_time}</p>
                     <br/>
                     <div className="color-page">
-                        <img className="color-table-image" src={blobImages[activeIndex]} alt="image-blob" />
+                        <img className="color-table-image" src={blobImages[activeIndex]} alt="color-blob" />
                         <div>
                            <table className="color-table">
                             <thead>
