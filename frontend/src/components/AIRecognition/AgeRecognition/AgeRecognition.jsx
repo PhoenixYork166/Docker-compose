@@ -4,6 +4,9 @@ import axios from 'axios';
 // Utility functions
 import blobToBase64 from '../../../util/blobToBase64';
 
+// 'Save to Device' button
+import saveToDevice from '../../../util/saveToDevice';
+
 // Parent component
 // src/components/Home/Home.jsx
 const AgeRecognition = ( { 
@@ -50,6 +53,9 @@ const AgeRecognition = ( {
         }
     }, [input]); // State management array[] to listen on imageUrl
 
+    /* For saving Celebrity record to User's local machine using Puppeteer */
+    const htmlToSave =  document.querySelector('.age-scraper') ? document.querySelector('.age-scraper').outerHTML : null;
+
     // Save to Account button to save Color details into PostgreSQL as blob metadata
     const saveAge = async () => {
         // Reset latest response.status.code before next action
@@ -74,15 +80,6 @@ const AgeRecognition = ( {
         metadata: base64Metadata,
         dateTime: new Date().toISOString()
         };
-
-        // const imageDetails = color_props_array.map((eachColor) => {
-        //     return {
-        //     raw_hex: eachColor.colors.raw_hex,
-        //     value: eachColor.colors.value,
-        //     w3c_hex: eachColor.colors.w3c.hex,
-        //     w3c_name: eachColor.colors.w3c.name
-        //     }
-        // });
         
         const bodyData = JSON.stringify({ 
             userId: user.id, 
@@ -94,8 +91,6 @@ const AgeRecognition = ( {
         console.log(`\nAgeRecognition saveAge() user.id: `, user.id, `\n`);
         console.log(`\nAgeRecognition saveAge(): `, age, `\n`);
         console.log(`\nAgeRecognition input: `, input, `\n`);
-        // console.log(`\nColorDetails saveColor imageRecord:\n`, imageRecord, `\n`);
-        // console.log(`\nColorDetails saveColor imageDetails:\n`, imageDetails, `\n`);
         console.log(`\nFetching ${fetchUrl} with bodyData`, bodyData, `\n`);
 
         await fetch(fetchUrl, {
@@ -122,11 +117,6 @@ const AgeRecognition = ( {
         ;
     }
 
-    // Save to Device button to save Color details into PostgreSQL as blob metadata
-    const saveAgeToDevice = async () => {
-      // Reset latest response.status.code before next action
-      // setResponseStatusCode(undefined);
-    }
 
     const showModal = () => {
         // Retrieve DOM element of modal-window pop-up upon users' copy events
@@ -143,34 +133,42 @@ const AgeRecognition = ( {
         <React.Fragment>
         <div className="age-container">
             <div className='age-subcontainer'>
-                <div id='age-number'>
-                    <h3>Age: {age}</h3>
-                </div>
+                <div className='age-scraper'>
+                    <div id='age-number'>
+                        <h3>Age: {age}</h3>
+                    </div>
 
-                <div className='age-image'>
-                   <img
-                    // id='face-image' is used for DOM manipulation
-                    // cannot be edited
-                    id='face-image'
-                    src={imageUrl}
-                    alt="Ooops...It seems the entered URL is BROKEN...Please enter a working URL starting with 'https' in .jpg format"
-                   /> 
+                    <div className='age-image'>
+                    <img
+                        // id='face-image' is used for DOM manipulation
+                        // cannot be edited
+                        id='face-image'
+                        src={imageUrl}
+                        alt="Ooops...It seems the entered URL is BROKEN...Please enter a working URL starting with 'https' in .jpg format"
+                    /> 
+                    </div>
                 </div>
 
                 <div className="saveBtn u-margin-top-small">
                     <button 
-                        className="saveBtn__p"
-                        onClick={() => { saveAge(); showModal();} } // AgeRecognition.jsx saveAge()
+                    className="saveBtn__p"
+                    onClick={() => { saveAge(); showModal();} } // AgeRecognition.jsx saveAge()
                     >
                         Save to Account
                     </button>
                 </div>
 
+                <div className='modal-window'>
+                    <h1 class='modal-window--inner'>
+                        {responseStatusCode === 200 ? 'Processed!' : 'Failed action' }
+                    </h1>
+                </div>
+                
                 {/* Save to Device button */}
                 <div className="saveBtn u-margin-top-tiny">
                     <button 
-                        className="saveBtn__p"
-                        onClick={() => { saveAgeToDevice(); showModal();} } // ColorDetails.jsx saveColor()
+                    className="saveBtn__p"
+                    onClick={() => { saveToDevice(htmlToSave); showModal();} } // ColorDetails.jsx saveColor()
                     >
                         Save to Device
                     </button>

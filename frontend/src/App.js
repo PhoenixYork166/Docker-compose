@@ -23,22 +23,22 @@ import findAge from './util/ai-detection/findAge';
 import calculateFaceLocation from './util/ai-detection/calculateFaceLocation';
 import { returnDateTime } from './util/returnDateTime';
 
+import axios from 'axios';
+
 const localStorage = window.localStorage;
 
 class App extends Component {
   constructor() {
     super();
-
-    const userData = localStorage.getItem('user');
-    const lastRoute = localStorage.getItem('lastRoute');
-    const defaultRoute = userData? (lastRoute || 'home') : 'signin';
+    // const userData = localStorage.getItem('user');
+    // const lastRoute = localStorage.getItem('lastRoute');
+    // const defaultRoute = userData? (lastRoute || 'home') : 'signin';
     
-    // Load User's records from localStorage, or set to null if not yet stored
-    const userColorRecords = localStorage.getItem('userColorRecords');
-    const userCelebrityRecords = localStorage.getItem('userCelebrityRecords');
-    const userAgeRecords = localStorage.getItem('userAgeRecords');
+    /* Load User's records from localStorage, or set to null if not yet stored */
+    // const userColorRecords = localStorage.getItem('userColorRecords');
+    // const userCelebrityRecords = localStorage.getItem('userCelebrityRecords');
+    // const userAgeRecords = localStorage.getItem('userAgeRecords');
     
-
     this.state = {
       input: '', // this.state.input => Users' input imageUrl => Can be used for onClick events
       imageUrl: '', // this.state.imageUrl should NOT be used for onClick => React circular references
@@ -52,99 +52,132 @@ class App extends Component {
       color_hidden: true,
       age_hidden: true,
       responseStatusCode: Number(''),
-      route: defaultRoute,
-      isSignedIn: userData ? true : false,
-      // isSignedIn: userData && Object.keys(userData).length > 0,
-      user: userData ? JSON.parse(userData) : {},      
+      // route: defaultRoute,
+      route: 'signin',
+      isSignedIn: false,
+      // isSignedIn: userData ? true : false,
 
-      userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null, // localStorage userCelebrityRecords{}
-      userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null, // localStorage userColorRecords{}
-      userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null, // localStorage userAgeRecords{}
+      user: {},
+      userCelebrityRecords: [],
+      userColorRecords: [],
+      userAgeRecords: [],
+      // user: userData ? JSON.parse(userData) : {},      
+
+      // userCelebrityRecords: userCelebrityRecords ? JSON.parse(userCelebrityRecords) : null,       userColorRecords: userColorRecords ? JSON.parse(userColorRecords) : null,
+      // userAgeRecords: userAgeRecords ? JSON.parse(userAgeRecords) : null,
     };
-    // this.state.dimensions => Bind methods for handleResize regarding this.handleResize
+
+    /* this.state.dimensions => Bind methods for handleResize regarding this.handleResize */
     this.handleResize = this.handleResize.bind(this);
 
-    // Persisting users' signed in sessions 
-    this.loadUserFromLocalStorage();
+    /* Persisting users' signed in sessions */
+    // this.loadUserFromLocalStorage();
 
-    // loadUserFromLocalStorage(this.setState.bind(this));
-    this.inactivityTimer = null;
+    /* loadUserFromLocalStorage(this.setState.bind(this)); */
+    // this.inactivityTimer = null;
   }
 
   componentDidMount() {
-    this.loadUserFromLocalStorage();
-    this.resetInactivityTimer();
-    // Adding EventListener to window 'resize' events
+    // this.loadUserFromLocalStorage();
+    // this.resetInactivityTimer();
+    this.fetchUserData();
+
+    /* Adding EventListener to window 'resize' events */
     window.addEventListener('resize', this.handleResize);
     
-    // this.state.dimensions => Periodically clean up this.state.dimensions{} in every 5 minutes
-    this.dimensionsCleanupTimer = setInterval(() => {
+    /* this.state.dimensions => Periodically clean up this.state.dimensions{} in every 5 minutes */
+    // this.dimensionsCleanupTimer = setInterval(() => {
+    //   this.setState({ dimensions: { width: window.innerWidth } });
+    // }, 300000); // Reset this.state.dimensions{} in every 5 minutes
+    setInterval(() => {
       this.setState({ dimensions: { width: window.innerWidth } });
-    }, 300000); // Reset this.state.dimensions{} in every 5 minutes
+    }, 300000);
 
     /* this.state.user => Refresh this.state.user every 3 seconds */
-    this.userRefreshInterval = setInterval(() => {
-      this.refreshUserData();
-    }, 3000);
+    // this.userRefreshInterval = setInterval(() => {
+    //   this.refreshUserData();
+    // }, 3000);
   }
 
-  refreshUserData() {
-    // Fetch user data from localStorage
-    const updatedUserData = localStorage.getItem('user');
-    if (updatedUserData) {
-      const user = JSON.parse(updatedUserData);
-      if (user !== this.state.user) {
-        this.setState({ user });
-      }
-    }
+  /* localStorage refreshUserData */
+  // refreshUserData() {
+  //   // Fetch user data from localStorage
+  //   const updatedUserData = localStorage.getItem('user');
+  //   if (updatedUserData) {
+  //     const user = JSON.parse(updatedUserData);
+  //     if (user !== this.state.user) {
+  //       this.setState({ user });
+  //     }
+  //   }
+  // }
+
+  /* Session cookie */
+  fetchUserData = () => {
+    const devUserDataUrl = `http://localhost:3001/api/get-user-data`;
+    const prodUserDataUrl = `https://ai-recognition-backend.onrender.com/api/get-user-data`;
+
+    const fetchUrl = process.env.NODE_ENV === 'production' ? prodUserDataUrl : devUserDataUrl;
+
+    axios.get(fetchUrl, { withCredentials: true })
+    .then((response) => {
+      if (response.data) {
+        this.setState({ 
+          user: response.data, 
+          isSignedIn: true, 
+          // route: 'home'
+        }, () => {
+          this.onRouteChange('home');
+        });
+      } 
+    })
+    .catch((err) => {
+      console.error(`\nFailed to fetch user data: `, err, `\n`);
+    })
   }
+
+  saveUser = (user) => {
+    this.setState({ user: user });
+  }
+
+  resetUser = () => {
+    this.setState({ user: {}, isSignedIn: false, route: 'signin'}, () => {
+      // this.removeUserFromLocalStorage();
+      console.log(`\nthis.state.isSignedIn after resetUser:\n`,this.state.isSignedIn, `\n`);//true
+    })
+  }
+
   /* Keep tracking for user state variables */
   // useEffect() hook combining componentDidUpdate & componentWillUnmount
   // Validate users whenever there's a change
   componentDidUpdate(prevProps, prevState) {
     if (this.state.user !== prevState.user) { 
       this.validateUsers();
-      this.updateLocalStorage('user', this.state.user, prevState.user);
+      // this.updateLocalStorage('user', this.state.user, prevState.user);
     }
-    // ** Storing User's latest route
-    if (this.state.route !== prevState.route) {
-      localStorage.setItem('lastRoute', this.state.route);
-    }
-
-    // Check if records have been updated & store them in localStorage
-    // if (this.state.userCelebrityRecords !== prevState.userCelebrityRecords) {
-    //   localStorage.setItem('userCelebrityRecords', JSON.stringify(this.state.userCelebrityRecords));
+    /* Storing User's latest route */
+    // if (this.state.route !== prevState.route) {
+    //   localStorage.setItem('lastRoute', this.state.route);
     // }
-    this.updateLocalStorage('userCelebrityRecords', this.state.userCelebrityRecords, prevState.userCelebrityRecords);
-
-    // Check if records have been updated & store them in localStorage
-    // if (this.state.userColorRecords !== prevState.userColorRecords) {
-    //   localStorage.setItem('userColorRecords', JSON.stringify(this.state.userColorRecords));
-    // }
-    this.updateLocalStorage('userColorRecords', this.state.userColorRecords, prevState.userColorRecords);
-
-    // Check if records have been updated & store them in localStorage
-    // if (this.state.userAgeRecords !== prevState.userAgeRecords) {
-    //   localStorage.setItem('userAgeRecords', JSON.stringify(this.state.userAgeRecords));
-    // }
-    this.updateLocalStorage('userAgeRecords', this.state.userAgeRecords, prevState.userAgeRecords);
+    // this.updateLocalStorage('userCelebrityRecords', this.state.userCelebrityRecords, prevState.userCelebrityRecords);
+    // this.updateLocalStorage('userColorRecords', this.state.userColorRecords, prevState.userColorRecords);
+    // this.updateLocalStorage('userAgeRecords', this.state.userAgeRecords, prevState.userAgeRecords);
   }
 
-  updateLocalStorage(key, newValue, oldValue) {
-    if (newValue !== oldValue) {
-      try {
-        localStorage.setItem(key, JSON.stringify(newValue));
-      } catch (err) {
-        console.error(`\nError updating ${key} in localStorage: `, err, `\n`);
-      }
-    }
-  }
+  // updateLocalStorage(key, newValue, oldValue) {
+  //   if (newValue !== oldValue) {
+  //     try {
+  //       localStorage.setItem(key, JSON.stringify(newValue));
+  //     } catch (err) {
+  //       console.error(`\nError updating ${key} in localStorage: `, err, `\n`);
+  //     }
+  //   }
+  // }
   
   componentWillUnmount() {
-    clearTimeout(this.inactivityTimer);
+    // clearTimeout(this.inactivityTimer);
     window.removeEventListener('resize', this.handleResize);
-    // this.state.dimensions => Clear the interval on unmount to avoid memory leak on browser 
-    clearInterval(this.dimensionsCleanupTimer);
+    /* this.state.dimensions => Clear the interval on unmount to avoid memory leak on browser */
+    // clearInterval(this.dimensionsCleanupTimer);
   }
 
   // Keep tracking window.innerWidth px
@@ -152,55 +185,42 @@ class App extends Component {
     this.setState({ dimensions: { width: window.innerWidth } });
   }
   
-  resetUser = () => {
-    this.setState({ user: {}, isSignedIn: false, route: 'signin'}, () => {
-      // this.removeUserFromLocalStorage();
-      this.removeUserFromLocalStorage();
-      console.log(`\nthis.state.isSignedIn after resetUser:\n`,this.state.isSignedIn, `\n`);//true
-    })
-
-  }
-
   resetInactivityTimer = () => {
     clearTimeout(this.inactivityTimer);
-    
     // Force users to sign out after 15 minutes (900000 milli-seconds)
     this.inactivityTimer = setTimeout(this.resetUser, 900000); 
   }
 
-  saveUserToLocalStorage = (user) => {
-    // A callback function that accepts passed-in user to save user to window.localStorage
-    localStorage.setItem('user', JSON.stringify(user));
-  }
+  /* A callback function that accepts passed-in user to save user to window.localStorage */
+  // saveUserToLocalStorage = (user) => {
+  //   localStorage.setItem('user', JSON.stringify(user));
+  // }
 
-  loadUserFromLocalStorage = () => {
-    const userData = localStorage.getItem('user');
+  /* Loading user from local storage */
+  // loadUserFromLocalStorage = () => {
+  //   const userData = localStorage.getItem('user');
 
-    console.log(`\nuserData:`);
-    console.log(userData);
+  //   if (userData) {
+  //     try {
+  //       this.setState({ 
+  //         user: JSON.parse(userData), 
+  //         isSignedIn: true,
+  //         route: localStorage.getItem('lastRoute') || 'home'
+  //         // ** route: 'home'
+  //       });
+  //     } catch (err) {
+  //       console.error(`\nFailed to parse user data: `, err);
+  //     }
+  //   } else {
+  //     console.log(`\nNo user data was found in local storage\n`);
+  //   }
+  // }
 
-    // If there's 'user' in localStorage
-    if (userData) {
-      try {
-        this.setState({ 
-          user: JSON.parse(userData), 
-          isSignedIn: true,
-          route: localStorage.getItem('lastRoute') || 'home'
-          // ** route: 'home'
-        });
-      } catch (err) {
-        console.error(`\nFailed to parse user data: `, err);
-      }
-    } else {
-      console.log(`\nNo user data was found in local storage\n`);
-    }
-  }
-
-  removeUserFromLocalStorage = () => {
-    localStorage.removeItem('user');
-    // **
-    localStorage.removeItem('lastRoute');
-  }
+  /* removing user from local storage */
+  // removeUserFromLocalStorage = () => {
+  //   localStorage.removeItem('user');
+  //   localStorage.removeItem('lastRoute');
+  // }
 
   // For Celebrity detection model
   displayCelebrity = (celebrity) => {
@@ -261,10 +281,10 @@ class App extends Component {
       userAgeRecords: []
     });
 
-    // Also remove these items from localStorage
-    localStorage.removeItem('userColorRecords');
-    localStorage.removeItem('userCelebrityRecords');
-    localStorage.removeItem('userAgeRecords');
+    /* Also remove these items from localStorage */
+    // localStorage.removeItem('userColorRecords');
+    // localStorage.removeItem('userCelebrityRecords');
+    // localStorage.removeItem('userAgeRecords');
   }
 
   // Everytime any of the Detection Models is activated
@@ -674,7 +694,7 @@ class App extends Component {
       age: [],
     }, 
     () => this.resetUser(),
-    () => this.removeUserFromLocalStorage(),
+    // () => this.removeUserFromLocalStorage(),
     () => this.resetState(),
     () => console.log('this.state.celebrity:\n', this.state.celebrity),
     () => console.log('this.state.colors:\n', this.state.colors),
@@ -798,16 +818,17 @@ class App extends Component {
       ),
       'signin': (
         <Signin 
-          saveUserToLocalStorage={this.saveUserToLocalStorage}
-          loadUserFromLocalStorage={this.loadUserFromLocalStorage}
+          // saveUserToLocalStorage={this.saveUserToLocalStorage}
+          // loadUserFromLocalStorage={this.loadUserFromLocalStorage}
+          saveUser={this.saveUser}
           onRouteChange={this.onRouteChange} 
         />
         // <TestMetadataBlob />
       ),
       'register': (
         <Register 
-          saveUserToLocalStorage={this.saveUserToLocalStorage}
-          loadUserFromLocalStorage={this.loadUserFromLocalStorage}
+          // saveUserToLocalStorage={this.saveUserToLocalStorage}
+          // loadUserFromLocalStorage={this.loadUserFromLocalStorage}
           onRouteChange={this.onRouteChange} 
         />
       ),
@@ -887,7 +908,7 @@ class App extends Component {
         {/* Conditional rendering */}
         <Navigation
           isSignedIn={isSignedIn}
-          removeUserFromLocalStorage={this.removeUserFromLocalStorage}
+          // removeUserFromLocalStorage={this.removeUserFromLocalStorage}
           onRouteChange={this.onRouteChange}
           resetUser={this.resetUser}
           resetState={this.resetState}

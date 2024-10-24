@@ -1,4 +1,3 @@
-import Loading from '../../Loading/Loading';
 import React, { useState, useEffect } from 'react';
 import './FaceRecognition.scss';
 
@@ -7,6 +6,8 @@ import axios from 'axios';
 import blobToBase64 from '../../../util/blobToBase64';
 // 'Save to Device' button
 import saveToDevice from '../../../util/saveToDevice';
+
+import Loading from '../../Loading/Loading';
 
 // Parent component
 // src/components/Home/Home.jsx
@@ -124,10 +125,12 @@ const FaceRecognition = ({
       setTimeout(() => modal.style.opacity=0, 2000)
     }
 
-    return face_hidden ? (
-    <h2>&nbsp;</h2>
-    ) : ( 
-    <React.Fragment>
+    // if (!celebrityName) return <Loading />;
+
+    if (face_hidden) return <h2>&nbsp;</h2>;
+
+    return (
+      <React.Fragment>
         <div className="face-recognition">
           <div className="container">
             <div className="face-inner">
@@ -196,16 +199,82 @@ const FaceRecognition = ({
             </button>
           </div>
         </div>
-    </React.Fragment>
+      </React.Fragment>
     )
+
+    // return face_hidden ? (
+    // <h2>&nbsp;</h2>
+    // ) : ( 
+    // <React.Fragment>
+    //     <div className="face-recognition">
+    //       <div className="container">
+    //         <div className="face-inner">
+    //           <div className="image-box">
+    //             <img
+    //             // id='face-image' is used for DOM manipulation
+    //             // cannot be edited
+    //             id='face-image'
+    //             style={{
+    //               marginTop: '5vh'
+    //             }}
+    //             src={imageUrl}
+    //             alt="Ooops...It seems the entered URL is BROKEN...Please enter a working URL starting with 'https' in .jpg format"
+    //             /> 
+    //           </div>
+              
+    //           <div 
+    //             className={celebrityName ? "bounding-box" : ""}
+    //             style={{
+    //             top: box.topRow,
+    //             right: box.rightCol,
+    //             bottom: box.bottomRow,
+    //             left: box.leftCol,
+    //             }}
+    //           >
+    //           {/* Create a button to show Celebrity name && 
+    //             allow users to google search it for comparison 
+    //             on a new browser window*/}
+    //             <div className="celebrity-container">
+    //               <button 
+    //                 className=
+    //                 {celebrityName ? "celebrity-name": "invisible"}
+    //                 onClick={() => 
+    //                   window.open(`https://www.google.com/search?q=${celebrityName}`, '_blank')}
+    //               >
+    //                 {celebrityName}
+    //               </button>
+    //             </div>
+    //           </div>
+
+    //         </div>
+    //       </div>
+
+    //       <div className='modal-window'>
+    //         <h1 class='modal-window--inner'>
+    //           {responseStatusCode === 200 ? 'Processed!' : 'Failed action' }
+    //         </h1>
+    //       </div>
+
+    //       {/* Save to Account button */}
+    //       <div className="saveBtn u-margin-top-small">
+    //         <button 
+    //           className="saveBtn__p"
+    //           onClick={() => { saveCelebrity(); showModal();} } // ColorDetails.jsx saveColor()
+    //         >
+    //           Save to Account
+    //         </button>
+    //       </div>
+    //       {/* Save to Device button */}
+    //       <div className="saveBtn u-margin-top-tiny">
+    //         <button 
+    //           className="saveBtn__p"
+    //           onClick={() => { saveToDevice(htmlToSave); showModal();} } 
+    //         >
+    //           Save to Device
+    //         </button>
+    //       </div>
+    //     </div>
+    // </React.Fragment>
+    // )
 }
 export default FaceRecognition;
-
-// From App.js:
-// calculateFaceLocation()
-// return {
-//     topRow: clarifaiFace.top_row * height,
-//     leftCol: clarifaiFace.left_col * width, 
-//     bottomRow: height - (clarifaiFace.bottom_row * height),
-//     rightCol: width - (clarifaiFace.right_col * width),
-//   }

@@ -15,7 +15,6 @@ const AgeRecords = ( {
     userAgeRecords
 } ) => {
     
-
     return (
         <React.Fragment>
             {/* <CheckRecordsPanel /> */}
