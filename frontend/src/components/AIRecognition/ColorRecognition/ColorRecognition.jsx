@@ -141,9 +141,10 @@ const ColorRecognition = ({
         setTimeout(() => modal.style.opacity=0, 2000)
     }
 
-    return color_hidden ? (
-    <h2>&nbsp;</h2>
-    ) : (<React.Fragment>
+    if (color_hidden) return;
+
+    return (
+      <React.Fragment>
         <div className="color-container row" id="color-container">
             <div className='color-image__modal-container col-1-of-2'>
                 <div className='color-image-box'> 

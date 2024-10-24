@@ -125,9 +125,7 @@ const FaceRecognition = ({
       setTimeout(() => modal.style.opacity=0, 2000)
     }
 
-    // if (!celebrityName) return <Loading />;
-
-    if (face_hidden) return <h2>&nbsp;</h2>;
+    if (face_hidden) return;
 
     return (
       <React.Fragment>

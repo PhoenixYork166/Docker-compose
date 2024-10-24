@@ -127,9 +127,9 @@ const AgeRecognition = ( {
         setTimeout(() => modal.style.opacity=0, 2000)
     }
 
-    return age_hidden ? (
-    <h2>&nbsp;</h2>
-    ) : ( 
+    if (age_hidden) return;
+
+    return ( 
         <React.Fragment>
         <div className="age-container">
             <div className='age-subcontainer'>

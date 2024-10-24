@@ -130,21 +130,26 @@ $gutter-horizontal: 3.75rem;
     }
 }
 
-@media (max-width: 750px) {
+@media (min-width: 1400px) {
     .modal-window {
-        left: 50%;
-        top: 125%;
+        left: 30%;
+        top: 160%;
     }
 }
 
-/*
-@media (min-width: 750px) {
+@media (min-width: 601px) {
     .modal-window {
-        left: 50%;
-        top: 90%;
+        left: 35%;
+        top: 160%;
     }
 }
-*/
+
+@media (max-width: 600px) {
+    .modal-window {
+        left: 35%;
+        top: 215%;
+    }
+}
 
 // @media only screen and (max-width: 120em) {
 //     .color-container {
